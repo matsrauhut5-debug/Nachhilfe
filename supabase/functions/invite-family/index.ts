@@ -29,6 +29,9 @@ function price(v: unknown): number | null {
   return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null
 }
 
+const USERNAME_RE = /^[a-z0-9][a-z0-9._-]{2,29}$/
+const USERNAME_HINT = 'Usernames need 3–30 characters: lowercase letters, numbers, dot, dash or underscore.'
+
 async function nextColor(): Promise<string> {
   const { data } = await admin.from('profiles').select('color').eq('role', 'family')
   const used = new Map<string, number>()
@@ -39,7 +42,7 @@ async function nextColor(): Promise<string> {
 
 async function getFamily(id: unknown) {
   if (typeof id !== 'string') return null
-  const { data } = await admin.from('profiles').select('id, email, role').eq('id', id).maybeSingle()
+  const { data } = await admin.from('profiles').select('id, email, role, username').eq('id', id).maybeSingle()
   return data?.role === 'family' ? data : null
 }
 
@@ -67,11 +70,18 @@ Deno.serve(async (req) => {
       const studentName = String(body.student_name ?? '').trim()
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Please enter a valid email address.')
       if (!studentName) return fail("Please enter the student's name.")
+      const username = String(body.username ?? '').trim().toLowerCase() || null
+      if (username && !USERNAME_RE.test(username)) return fail(USERNAME_HINT)
 
       const { data: existing } = await admin.from('profiles').select('id').eq('email', email).maybeSingle()
       if (existing) return fail('There is already an account with this email address.')
+      if (username) {
+        const { data: taken } = await admin.from('profiles').select('id').eq('username', username).maybeSingle()
+        if (taken) return fail('This username is already taken.')
+      }
 
-      const { data: invited, error } = await admin.auth.admin.inviteUserByEmail(email)
+      // username is shown in the invitation email via {{ .Data.username }}
+      const { data: invited, error } = await admin.auth.admin.inviteUserByEmail(email, { data: { username } })
       if (error || !invited.user) return fail(`The invitation could not be sent: ${error?.message ?? 'unknown error'}`, 502)
 
       // The profile row was created by the on_auth_user_created trigger
@@ -79,6 +89,7 @@ Deno.serve(async (req) => {
         .from('profiles')
         .update({
           student_name: studentName,
+          username,
           parent_name: String(body.parent_name ?? '').trim() || null,
           price_60: price(body.price_60),
           price_90: price(body.price_90),
@@ -98,7 +109,7 @@ Deno.serve(async (req) => {
       // Never signed in → send the invitation again; otherwise a password reset link
       const { error } = u.user?.last_sign_in_at
         ? await admin.auth.resetPasswordForEmail(fam.email)
-        : await admin.auth.admin.inviteUserByEmail(fam.email)
+        : await admin.auth.admin.inviteUserByEmail(fam.email, { data: { username: fam.username } })
       if (error) return fail(`The email could not be sent: ${error.message}`, 502)
       return reply({ ok: true, kind: u.user?.last_sign_in_at ? 'reset' : 'invite' })
     }

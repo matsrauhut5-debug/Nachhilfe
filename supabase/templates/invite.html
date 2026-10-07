@@ -7,5 +7,7 @@
     <a href="{{ .SiteURL }}?token_hash={{ .TokenHash }}&type=invite#/set-password"
        style="background:#0E8A5F;color:#fff;text-decoration:none;padding:12px 20px;border-radius:11px;font-weight:600;display:inline-block">Set password</a>
   </p>
-  <p style="color:#6B7180;font-size:14px">After that, you always sign in with this email address and your password. This link is valid for 24 hours.</p>
+  {{ if .Data.username }}<p>Your username: <b>{{ .Data.username }}</b></p>
+  <p style="color:#6B7180;font-size:14px">After that, you sign in with your username (or this email address) and your password. This link is valid for 24 hours.</p>
+  {{ else }}<p style="color:#6B7180;font-size:14px">After that, you always sign in with this email address and your password. This link is valid for 24 hours.</p>{{ end }}
 </div>

@@ -7,6 +7,7 @@ import { callFunction } from '../lib/functions'
 type Family = {
   id: string
   student_name: string | null
+  username: string | null
   parent_name: string | null
   email: string
   color: string | null
@@ -33,6 +34,16 @@ function priceKey(d: number) {
   return `price_${d}` as PriceKey
 }
 
+const USERNAME_RE = /^[a-z0-9][a-z0-9._-]{2,29}$/
+const USERNAME_HINT = 'Usernames need 3–30 characters: lowercase letters, numbers, dot, dash or underscore.'
+
+// "Mia Berger" → "mia"
+function suggestUsername(studentName: string) {
+  const first = studentName.trim().split(/\s+/)[0] ?? ''
+  const clean = first.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9._-]/g, '')
+  return clean.length >= 3 ? clean.slice(0, 30) : ''
+}
+
 function parsePrice(v: string): number | null {
   if (v.trim() === '') return null
   const n = Number(v)
@@ -57,7 +68,7 @@ export default function StudentsTab() {
     const [fam, bk, st] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, student_name, parent_name, email, color, price_60, price_90, price_120, timezone, active')
+        .select('id, student_name, username, parent_name, email, color, price_60, price_90, price_120, timezone, active')
         .eq('role', 'family')
         .order('created_at'),
       supabase.from('bookings').select('family_id, ends_at, duration_min, status, paid, price'),
@@ -81,7 +92,7 @@ export default function StudentsTab() {
     setFamilies((list) => list?.map((f) => (f.id === id ? { ...f, ...patch } : f)) ?? null)
     const { error } = await supabase.from('profiles').update(patch).eq('id', id)
     if (error) {
-      toast('Could not save. Please try again.')
+      toast(error.code === '23505' ? 'This username is already taken.' : 'Could not save. Please try again.')
       load()
     } else {
       toast('Saved')
@@ -151,6 +162,28 @@ export default function StudentsTab() {
                     type="text"
                     defaultValue={f.parent_name ?? ''}
                     onBlur={(e) => e.target.value.trim() !== (f.parent_name ?? '') && saveField(f.id, { parent_name: e.target.value.trim() || null })}
+                  />
+                </div>
+                <div className="f">
+                  <label htmlFor={`u-${f.id}`}>Username</label>
+                  <input
+                    id={`u-${f.id}`}
+                    type="text"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder="optional"
+                    defaultValue={f.username ?? ''}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim().toLowerCase()
+                      if (v === (f.username ?? '')) return
+                      if (v && !USERNAME_RE.test(v)) {
+                        toast(USERNAME_HINT)
+                        e.target.value = f.username ?? ''
+                        return
+                      }
+                      e.target.value = v
+                      saveField(f.id, { username: v || null })
+                    }}
                   />
                 </div>
                 <div className="f">
@@ -272,6 +305,7 @@ function AddStudentDialog({ onClose, onDone }: { onClose: () => void; onDone: ()
   const toast = useToast()
   const [form, setForm] = useState({
     student_name: '',
+    username: '',
     parent_name: '',
     email: '',
     price_60: '',
@@ -282,16 +316,20 @@ function AddStudentDialog({ onClose, onDone }: { onClose: () => void; onDone: ()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [usernameTouched, setUsernameTouched] = useState(false)
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value })
 
   async function submit(e: FormEvent) {
     e.preventDefault()
+    const username = form.username.trim().toLowerCase()
+    if (username && !USERNAME_RE.test(username)) return setError(USERNAME_HINT)
     setBusy(true)
     setError(null)
     try {
       await callFunction('invite-family', {
         action: 'invite',
         ...form,
+        username,
         price_60: parsePrice(form.price_60),
         price_90: parsePrice(form.price_90),
         price_120: parsePrice(form.price_120),
@@ -311,7 +349,34 @@ function AddStudentDialog({ onClose, onDone }: { onClose: () => void; onDone: ()
       <form onSubmit={submit} className="addform">
         <label className="field">
           Student name
-          <input type="text" required autoFocus value={form.student_name} onChange={set('student_name')} placeholder="e.g. Mia Berger" />
+          <input
+            type="text"
+            required
+            autoFocus
+            value={form.student_name}
+            placeholder="e.g. Mia Berger"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                student_name: e.target.value,
+                username: usernameTouched ? form.username : suggestUsername(e.target.value),
+              })
+            }
+          />
+        </label>
+        <label className="field">
+          Username <span>optional</span>
+          <input
+            type="text"
+            autoCapitalize="none"
+            spellCheck={false}
+            value={form.username}
+            onChange={(e) => {
+              setUsernameTouched(true)
+              setForm({ ...form, username: e.target.value })
+            }}
+          />
+          <span>The family can sign in with this instead of the email. It's included in the invitation.</span>
         </label>
         <label className="field">
           Parent name <span>optional</span>

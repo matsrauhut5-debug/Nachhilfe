@@ -95,6 +95,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
   migrations/*.sql
   functions/
     invite-family/
+    username-login/
     send-notification/
     calendar-feed/
     weekly-backup/
@@ -110,7 +111,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 
 - **Keine Selbstregistrierung.** In Supabase Auth „Allow new users to sign up“ **deaktivieren**. Familien werden nur von Mats eingeladen.
 - **Admin-Konto:** Mats wird einmalig im Supabase-Dashboard angelegt; danach per SQL `role = 'admin'` gesetzt (Claude Code gibt Mats die genaue Anleitung).
-- **Login:** E-Mail + Passwort. Einladung per E-Mail → Link → „Passwort festlegen“-Seite. „Passwort vergessen“ über Supabase Reset-Mail.
+- **Login:** E-Mail **oder Benutzername** + Passwort (Benutzername optional, von Mats vergeben, steht in der Einladungs-Mail; Edge Function `username-login` sucht die E-Mail serverseitig, die Webseite erfährt sie nie). Gesperrte Konten sehen: „Your account has been deactivated. Please reach out to Mats.“ Einladung per E-Mail → Link → „Passwort festlegen“-Seite. „Passwort vergessen“ über Supabase Reset-Mail.
 - **Eine App, eine Adresse.** Nach dem Login entscheidet die Rolle aus der Datenbank, welche Ansicht erscheint (`#/admin` oder `#/book`). Ruft eine Familie `#/admin` auf, wird sie umgeleitet – und bekommt ohnehin keine Daten, weil RLS alles blockiert.
 - Hilfsfunktion `is_admin()` (SQL, `security definer`, liest die Rolle des aktuellen Nutzers).
 - Empfehlung für Mats: starkes Passwort; optional Zwei-Faktor-Anmeldung später.
@@ -160,6 +161,7 @@ profiles (
   id uuid primary key references auth.users on delete cascade,
   role text not null check (role in ('admin','family')) default 'family',
   student_name text,          -- z. B. "Mia Berger"
+  username text unique,       -- optional, klein geschrieben, z. B. "mia" (3–30 Zeichen a-z 0-9 . _ -)
   parent_name text,           -- z. B. "Sandra Berger"
   email text not null,
   color text,                 -- aus der Palette, automatisch vergeben

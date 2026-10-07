@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
         </>
       ) : (
         <>
-          <p className="muted">Enter your email address. We'll send you a link to set a new password.</p>
+          <p className="muted">Enter the email address of your account (not your username). We'll send you a link to set a new password.</p>
           <form onSubmit={handleSubmit}>
             <label className="field">
               Email
