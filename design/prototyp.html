@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nachhilfe bei Mats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --paper:#F1F4F0; --card:#FFFFFF; --ink:#1E2340; --muted:#6B7180; --line:#E2E6E1;
+  --accent:#0E8A5F; --accent-soft:#E4F3EB; --accent-ink:#0A6444;
+  --gold:#B47C24; --gold-soft:#F7EEDD; --danger:#B4452F; --danger-soft:#F8E7E2;
+  --booked-bg:#ECEEF0; --booked-ink:#97A2AC;
+  --shadow:0 1px 2px rgba(30,35,64,.05),0 8px 24px rgba(30,35,64,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#101219; --card:#191C24; --ink:#ECEEF2; --muted:#99A0AF; --line:#2A2E39;
+    --accent:#37BC88; --accent-soft:#16281F; --accent-ink:#86E6BF;
+    --gold:#D6A24C; --gold-soft:#2A2215; --danger:#E27862; --danger-soft:#2E1B17;
+    --booked-bg:#1F232C; --booked-ink:#69707E;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101219; --card:#191C24; --ink:#ECEEF2; --muted:#99A0AF; --line:#2A2E39;
+  --accent:#37BC88; --accent-soft:#16281F; --accent-ink:#86E6BF;
+  --gold:#D6A24C; --gold-soft:#2A2215; --danger:#E27862; --danger-soft:#2E1B17;
+  --booked-bg:#1F232C; --booked-ink:#69707E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body.noscroll{overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 20px 72px}
+.serif{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-optical-sizing:auto}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+
+/* Demo-Leiste */
+.demobar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;
+  padding:10px 12px;border:1px dashed color-mix(in srgb,var(--gold) 60%,var(--line));
+  border-radius:14px;background:var(--gold-soft);font-size:.88rem;margin-bottom:26px}
+.demobar .lbl{font-weight:700;color:var(--gold)}
+.demobar .note{flex-basis:100%;color:var(--muted);font-size:.8rem;margin:0}
+.demobar select{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 8px}
+.demobar .spacer{flex:1}
+
+/* Segmented */
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:8px;padding:6px 12px;font-weight:600;font-size:.9rem;color:var(--muted);line-height:1.2}
+.seg button.on{background:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button.on{color:#0B1A13}}
+:root[data-theme="dark"] .seg button.on{color:#0B1A13}
+.seg button small{display:block;font-weight:500;font-size:.74rem;opacity:.85}
+
+/* Buttons */
+.btn{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:9px 14px;font-weight:600;font-size:.92rem;line-height:1.2}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--line))}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn.sm{padding:6px 10px;font-size:.84rem;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0B1A13}}
+:root[data-theme="dark"] .btn.primary{color:#0B1A13}
+.iconbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--card);font-size:1.15rem;line-height:1;display:inline-grid;place-items:center}
+.iconbtn:disabled{opacity:.35;cursor:not-allowed}
+
+/* Kopf */
+.head{margin-bottom:22px}
+.head h1{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:clamp(1.9rem,6vw,2.8rem);line-height:1.05;letter-spacing:-.01em;margin:0 0 6px}
+.head p{margin:0;color:var(--muted);max-width:52ch}
+.who{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 6px;margin-top:12px}
+.who .av{width:24px;height:24px;border-radius:50%;background:var(--c);color:#fff;font-size:.72rem;font-weight:700;display:grid;place-items:center}
+
+/* Toolbar */
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:16px}
+.toolbar .wk{display:flex;align-items:center;gap:8px}
+.toolbar .wklabel{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.12rem;min-width:9.5em;text-align:center}
+.toolbar .grow{flex:1}
+
+/* Schüler-Kalender */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.sday{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 12px 14px;box-shadow:var(--shadow);min-width:0}
+.sday.today{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.sday .dn{font-weight:700}
+.sday.today .dn{color:var(--accent-ink)}
+.sday .dd{color:var(--muted);font-size:.82rem;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);background:var(--accent-soft);color:var(--accent-ink);
+  border-radius:9px;padding:6px 9px;font-weight:700;font-size:.9rem;letter-spacing:-.01em}
+.chip:hover{background:color-mix(in srgb,var(--accent) 18%,var(--card))}
+.mychip{display:block;width:100%;text-align:left;background:var(--gold-soft);border:1px solid color-mix(in srgb,var(--gold) 45%,var(--line));
+  color:var(--ink);border-radius:10px;padding:7px 10px;margin-bottom:8px;font-size:.88rem}
+.mychip b{display:block}
+.mychip span{color:var(--gold);font-size:.78rem;font-weight:600}
+.none{color:var(--muted);font-size:.86rem}
+
+/* Listen */
+.sect{margin-top:34px}
+.sect h2{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.3rem;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.rowitem{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.rowitem:last-child{border-bottom:0}
+.rowitem .t{font-weight:600}
+.rowitem .s{color:var(--muted);font-size:.85rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent-ink);margin-left:6px;vertical-align:1px}
+.tag.gold{background:var(--gold-soft);color:var(--gold)}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.grey{background:var(--booked-bg);color:var(--muted)}
+.series{padding:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  border-left:4px solid var(--gold)}
+.lock{font-size:.8rem;color:var(--muted);text-align:right;max-width:15em}
+
+/* Admin Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.tabs button{border:0;background:transparent;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* Zeitraster */
+.tg-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:var(--shadow)}
+.tg{min-width:760px}
+.tg-head,.tg-body{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr))}
+.tg-head{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);z-index:3}
+.tg-head div{padding:10px 8px;font-size:.84rem;text-align:center}
+.tg-head .dn{font-weight:700}
+.tg-head .num{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:50%;font-weight:600;margin-top:2px}
+.tg-head .today .num{background:var(--accent);color:#fff}
+.tg-body{padding-top:10px;padding-bottom:6px}
+.tg-times{position:relative;height:var(--h)}
+.tg-times .hl{position:absolute;right:8px;transform:translateY(-50%);font-size:.72rem;color:var(--muted)}
+.tg-col{position:relative;height:var(--h);border-left:1px solid var(--line);
+  background-image:repeating-linear-gradient(to bottom,var(--line) 0,var(--line) 1px,transparent 1px,transparent var(--hr))}
+.band{position:absolute;left:0;right:0;background:color-mix(in srgb,var(--accent) 9%,transparent);border-top:1px dashed color-mix(in srgb,var(--accent) 35%,transparent);border-bottom:1px dashed color-mix(in srgb,var(--accent) 35%,transparent)}
+.blockedcol{position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 8px,color-mix(in srgb,var(--muted) 12%,transparent) 8px 16px);display:flex;justify-content:center;padding-top:10px;font-size:.75rem;color:var(--muted);font-weight:600}
+.ev{position:absolute;left:3px;right:3px;border:0;text-align:left;border-radius:8px;padding:3px 6px;overflow:hidden;
+  background:color-mix(in srgb,var(--c) 17%,var(--card));border-left:3px solid var(--c);font-size:.76rem;line-height:1.25;color:var(--ink);z-index:1}
+.ev:hover{background:color-mix(in srgb,var(--c) 26%,var(--card))}
+.ev b{display:block;font-size:.8rem}
+.ev.late{opacity:.7;border-left-style:dashed;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--c) 10%,var(--card)) 0 6px,var(--card) 6px 12px)}
+.ev .pd{font-weight:700;color:var(--accent-ink)}
+.ev .op{font-weight:700;color:var(--danger)}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:2}
+.nowline::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+
+/* Monat */
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.mgrid .mh{padding:8px;font-size:.8rem;font-weight:700;color:var(--muted);text-align:center;border-bottom:1px solid var(--line)}
+.mcell{min-height:92px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:6px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.mcell:nth-child(7n+7){border-right:0}
+.mcell:hover{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.mcell .n{font-size:.82rem;font-weight:600}
+.mcell.out{color:var(--muted);opacity:.55}
+.mcell.today .n{color:#fff;background:var(--accent);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+.mcell.blocked{background:repeating-linear-gradient(135deg,transparent 0 8px,color-mix(in srgb,var(--muted) 10%,transparent) 8px 16px)}
+.me{font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.me i{flex:0 0 7px;height:7px;border-radius:50%;background:var(--c)}
+.me.late{text-decoration:line-through;opacity:.6}
+@media (max-width:640px){.mcell{min-height:64px}.me span{display:none}}
+
+/* Formkarten */
+.panel{padding:18px;margin-bottom:16px}
+.panel h3{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.15rem;margin:0 0 4px}
+.panel > p{margin:0 0 14px}
+.avrow{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.avrow:first-of-type{border-top:0}
+.avday{font-weight:600;padding-top:7px}
+.wins{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.win{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+input[type=time],input[type=date],input[type=number],input[type=text],input[type=email],select.inp{
+  background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:7px 9px;min-width:0}
+input[type=number]{width:5.2em}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:5px;font-size:.88rem;font-weight:600}
+.field span{font-weight:400;color:var(--muted);font-size:.8rem}
+.blockform{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+@media (max-width:560px){.avrow{grid-template-columns:1fr;gap:4px}.avday{padding-top:0}}
+
+/* Schülerkarten */
+.sgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.scard{padding:16px;border-top:4px solid var(--c)}
+.scard .nm{font-family:"Fraunces",Georgia,serif;font-size:1.15rem;font-weight:500;width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:4px 0;margin-bottom:10px}
+.scard .nm:focus{outline:none;border-bottom-color:var(--accent)}
+.scard .f{display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center;font-size:.85rem;margin-bottom:8px}
+.scard .f label{color:var(--muted)}
+.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.prices label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+.prices input{width:100%}
+.swatches{display:flex;gap:6px;margin-bottom:12px}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;background:var(--c);padding:0}
+.sw.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset}
+.sstats{font-size:.82rem;color:var(--muted);margin:0 0 12px}
+.srow{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Zahlungen */
+.sums{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.sum{padding:14px 16px}
+.sum .v{font-family:"Fraunces",Georgia,serif;font-size:1.6rem;font-weight:500;line-height:1.1}
+.sum .k{font-size:.84rem;color:var(--muted)}
+.sum.open .v{color:var(--danger)}
+.sum.paid .v{color:var(--accent-ink)}
+.perstudent{font-size:.86rem;color:var(--muted);margin:-4px 0 16px}
+.tbl-wrap{overflow-x:auto}
+table.pay{width:100%;border-collapse:collapse;font-size:.92rem;min-width:520px}
+table.pay th{text-align:left;font-size:.8rem;color:var(--muted);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--line)}
+table.pay td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.pay tr:last-child td{border-bottom:0}
+table.pay td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.pay th.num{text-align:right}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:7px}
+.paybtn{border-radius:999px;padding:5px 12px;font-weight:700;font-size:.8rem;border:1px solid var(--line);background:var(--card);min-width:6.5em}
+.paybtn.paid{background:var(--accent-soft);color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+.paybtn.open{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,var(--line))}
+
+/* Modal */
+#modal[hidden]{display:none}
+#modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;
+  padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.scrim{position:absolute;inset:0;background:rgba(15,18,30,.45)}
+.modal{position:relative;background:var(--card);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:100%;max-width:460px;max-height:100%;overflow:auto;padding:22px}
+.modal h3{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.4rem;margin:0 0 12px;line-height:1.15}
+.summary{background:var(--paper);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.summary .big{font-weight:700;font-size:1.05rem}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.92rem;margin:0 0 14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-weight:600;cursor:pointer}
+.switch input{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex:0 0 auto;transition:background .15s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(18px)}
+.repbox{background:var(--paper);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.repbox .quick{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.prev{font-size:.86rem;margin-top:8px}
+.prev .bad{color:var(--danger)}
+.fine{font-size:.82rem;color:var(--muted);margin:4px 0 16px}
+.actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.actions.stack{flex-direction:column;align-items:stretch}
+.actions.stack .btn{width:100%}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;
+  background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;z-index:60;pointer-events:none;
+  transition:opacity .2s,transform .2s;max-width:calc(100% - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){#toast,.switch input,.switch input::after{transition:none}}
+
+.infocard{padding:14px 16px;margin-top:16px;display:flex;gap:14px;align-items:flex-start;font-size:.9rem}
+.infocard .ic{font-size:1.3rem;line-height:1}
+.infocard p{margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center}
+/* v3: Bearbeiten-Modus */
+.cell{height:var(--cell);border-bottom:1px solid transparent;cursor:pointer}
+.cell.on{background:color-mix(in srgb,var(--accent) 24%,transparent);border-bottom-color:color-mix(in srgb,var(--accent) 12%,transparent)}
+.cell:hover{box-shadow:inset 0 0 0 1px var(--accent)}
+.cell.past{cursor:not-allowed;opacity:.35}
+.cell.past:hover{box-shadow:none}
+.tg.edit .tg-col{touch-action:pan-x;user-select:none;-webkit-user-select:none}
+.tg.edit .ev{pointer-events:none;opacity:.8;background:transparent;border:1px dashed var(--c);border-left:3px solid var(--c)}
+.tg-head button.dh{border:0;background:transparent;width:100%;padding:10px 8px;border-radius:10px}
+.tg-head button.dh:hover{background:var(--accent-soft)}
+.tg-head .cust{display:block;font-size:.68rem;color:var(--accent-ink);font-weight:600}
+.edithint{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 14px;margin-bottom:12px;background:var(--accent-soft);border-radius:14px;font-size:.9rem;color:var(--accent-ink)}
+.edithint p{margin:0;flex:1;min-width:14em}
+.weeksum{font-size:.9rem;color:var(--muted);margin:-4px 0 14px}
+.weeksum b{color:var(--ink)}
+.nextcard{padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;gap:14px;border-left:4px solid var(--accent)}
+.nextcard .k{font-size:.82rem;color:var(--muted)}
+.nextcard .v{font-weight:700;font-size:1.05rem}
+.durpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.durpick button{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 6px;font-weight:700;line-height:1.25}
+.durpick button small{display:block;font-weight:500;font-size:.78rem;color:var(--muted)}
+.durpick button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.durpick button.on small{color:var(--accent-ink)}
+.durpick button:disabled{opacity:.4;cursor:not-allowed}
+.fieldlbl{font-weight:600;font-size:.9rem;margin:0 0 8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="modal" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Helfer ---------- */
+var KEY="nh_proto_state_v4", UIKEY="nh_proto_ui_v4";
+var PALETTE=["#0E8A5F","#3F6FA8","#8C6A3F","#6A5D8F","#3F7F7B","#8E5A5A"];
+var WD_S=["So","Mo","Di","Mi","Do","Fr","Sa"];
+var WD_L=["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+var MON=["Jan.","Feb.","März","Apr.","Mai","Juni","Juli","Aug.","Sept.","Okt.","Nov.","Dez."];
+var MON_L=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+var ORDER=[1,2,3,4,5,6,0];
+var DURS=[60,90,120], SLOT=30, EDIT_LO=7*60, EDIT_HI=22*60, PPM=1.1;
+
+function pad(n){return (n<10?"0":"")+n}
+function toISO(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parseISO(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function addDays(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x}
+function mondayOf(d){var x=new Date(d);x.setHours(0,0,0,0);var w=x.getDay();x.setDate(x.getDate()+(w===0?-6:1-w));return x}
+function toMin(t){var p=t.split(":");return (+p[0])*60+(+p[1])}
+function fromMin(m){return pad(Math.floor(m/60))+":"+pad(m%60)}
+function startDT(iso,start){var d=parseISO(iso),m=toMin(start);d.setHours(Math.floor(m/60),m%60,0,0);return d}
+function endDT(b){return new Date(startDT(b.date,b.start).getTime()+b.dur*60000)}
+function fmtDur(m){return m===60?"1 Std.":m===90?"1,5 Std.":m===120?"2 Std.":String(m/60).replace(".",",")+" Std."}
+var NUM0=new Intl.NumberFormat("de-DE",{maximumFractionDigits:0}),NUM2=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+function money(n){n=n||0;return "HK$ "+(n%1?NUM2:NUM0).format(n)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fmtDay(d){return WD_L[d.getDay()]+", "+d.getDate()+". "+MON[d.getMonth()]}
+function fmtShort(d){return WD_S[d.getDay()]+" "+d.getDate()+". "+MON[d.getMonth()]}
+function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4)}
+function initials(n){return String(n||"?").split(/\s+/).map(function(x){return x[0]||""}).join("").slice(0,2).toUpperCase()}
+function timeRange(b){return b.start+"–"+fromMin(toMin(b.start)+b.dur)}
+function range(a,b){var r=[];for(var m=a;m<b;m+=SLOT)r.push(m);return r}
+function toWindows(slots){
+  var s=slots.slice().sort(function(a,b){return a-b}),out=[];
+  s.forEach(function(m){var l=out[out.length-1];if(l&&l[1]===m)l[1]=m+SLOT;else out.push([m,m+SLOT])});
+  return out;
+}
+
+/* ---------- Beispieldaten ---------- */
+function seed(){
+  var mon=mondayOf(new Date());
+  var students=[
+    {id:"s1",name:"Mia Berger",parent:"Sandra Berger",email:"familie.berger@example.com",color:PALETTE[0],prices:{60:300,90:420,120:550}},
+    {id:"s2",name:"Jonas Keller",parent:"Thomas Keller",email:"keller@example.com",color:PALETTE[1],prices:{60:280,90:400,120:520}},
+    {id:"s3",name:"Lea Hoffmann",parent:"Anja Hoffmann",email:"hoffmann@example.com",color:PALETTE[2],prices:{60:320,90:460,120:600}}
+  ];
+  var bookings=[];
+  function add(sid,date,start,dur,series,status){
+    var s=students.filter(function(x){return x.id===sid})[0];
+    var b={id:uid(),studentId:sid,date:toISO(date),start:start,dur:dur,seriesId:series||null,status:status||"booked",paid:false,price:s.prices[dur]||0};
+    b.paid=date<mon&&b.status==="booked";
+    bookings.push(b);
+  }
+  var i;
+  for(i=0;i<12;i++) add("s1",addDays(mon,-14+i*7),"15:00",90,"ser1");
+  for(i=0;i<10;i++) add("s2",addDays(mon,-7+i*7+2),"16:00",60,"ser2");
+  add("s3",addDays(mon,-10),"17:00",120,null,"late");
+  add("s3",addDays(mon,-3),"14:00",60);
+  add("s3",addDays(mon,3),"17:00",120);
+  add("s3",addDays(mon,10),"17:00",120);
+  var tpl={0:[],1:range(14*60,19*60),2:range(15*60,19*60+30),3:range(14*60,18*60),4:range(15*60,20*60),5:range(13*60,17*60),6:[]};
+  var ov={};
+  ov[toISO(addDays(mon,18))]=[];                    // Freitag in 2 Wochen komplett blockiert
+  ov[toISO(addDays(mon,12))]=range(10*60,13*60);    // Samstag nächste Woche zusätzlich frei
+  return {v:4,settings:{cancelHours:24},tpl:tpl,ov:ov,students:students,bookings:bookings};
+}
+
+function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+var S=load(KEY);
+if(!S||S.v!==4||!S.students||!S.bookings||!S.tpl) S=seed();
+if(!S.ov) S.ov={};
+var today=new Date();
+var U=Object.assign({
+  role:"student",studentId:"s1",sWeek:0,
+  aTab:"cal",aMode:"week",aEdit:false,aWeek:toISO(mondayOf(today)),
+  aMonth:toISO(new Date(today.getFullYear(),today.getMonth(),1)),
+  payMonth:toISO(new Date(today.getFullYear(),today.getMonth(),1)),payFilter:"all"
+},load(UIKEY)||{});
+if(!S.students.some(function(s){return s.id===U.studentId})&&S.students[0]) U.studentId=S.students[0].id;
+
+function save(){store(KEY,S)}
+function saveUI(){store(UIKEY,U)}
+function student(id){return S.students.filter(function(s){return s.id===(id||U.studentId)})[0]}
+function canCancel(b){return startDT(b.date,b.start).getTime()-Date.now()>S.settings.cancelHours*3600000}
+function isCustom(iso){return Object.prototype.hasOwnProperty.call(S.ov,iso)}
+function daySlots(iso){return isCustom(iso)?S.ov[iso]:(S.tpl[parseISO(iso).getDay()]||[])}
+function usualDur(sid){
+  var bs=S.bookings.filter(function(b){return b.studentId===sid&&b.status!=="cancelled"});
+  return bs.length?bs[bs.length-1].dur:60;
+}
+
+/* Freie Startzeiten eines Tages für eine Dauer */
+function freeStarts(iso,dur){
+  var set={};daySlots(iso).forEach(function(m){set[m]=1});
+  var day=S.bookings.filter(function(b){return b.status==="booked"&&b.date===iso});
+  var now=Date.now(),out=[];
+  Object.keys(set).map(Number).sort(function(a,b){return a-b}).forEach(function(t){
+    for(var m=t;m<t+dur;m+=SLOT) if(!set[m]) return;
+    if(startDT(iso,fromMin(t)).getTime()<=now) return;
+    if(day.some(function(b){var bs=toMin(b.start),be=bs+b.dur;return t<be&&t+dur>bs})) return;
+    out.push(fromMin(t));
+  });
+  return out;
+}
+
+/* ---------- UI-Grundgerüst ---------- */
+var app=document.getElementById("app"),modalRoot=document.getElementById("modal"),toastEl=document.getElementById("toast"),toastT;
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove("show")},2600)}
+var lastFocus=null;
+function openModal(html,mount){
+  lastFocus=document.activeElement;
+  modalRoot.innerHTML='<div class="scrim" data-act="closeModal"></div><div class="modal" role="dialog" aria-modal="true">'+html+'</div>';
+  modalRoot.hidden=false;document.body.classList.add("noscroll");
+  var m=modalRoot.querySelector(".modal");
+  if(mount) mount(m);
+  var f=m.querySelector("[autofocus]")||m.querySelector("button.primary")||m.querySelector("button");
+  if(f) f.focus();
+}
+function closeModal(){modalRoot.hidden=true;modalRoot.innerHTML="";document.body.classList.remove("noscroll");if(lastFocus&&lastFocus.focus&&document.body.contains(lastFocus))lastFocus.focus()}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!modalRoot.hidden)closeModal()});
+function confirmBox(title,text,okLabel,onOk,danger){
+  openModal('<h3>'+esc(title)+'</h3><p class="muted" style="margin:0 0 18px">'+text+'</p><div class="actions"><button class="btn ghost" id="cNo">Zurück</button><button class="btn '+(danger?"danger":"primary")+'" id="cYes">'+esc(okLabel)+'</button></div>',function(m){
+    m.querySelector("#cNo").onclick=closeModal;
+    m.querySelector("#cYes").onclick=function(){closeModal();onOk()};
+  });
+}
+function render(){app.innerHTML=demoBar()+(U.role==="student"?renderStudent():renderAdmin())}
+
+function demoBar(){
+  var opts=S.students.map(function(s){return '<option value="'+s.id+'"'+(s.id===U.studentId?" selected":"")+'>'+esc(s.name)+'</option>'}).join("");
+  return '<div class="demobar"><span class="lbl">Demo</span>'+
+    '<div class="seg" role="group" aria-label="Ansicht"><button data-act="role" data-v="student" class="'+(U.role==="student"?"on":"")+'">Schüler</button><button data-act="role" data-v="admin" class="'+(U.role==="admin"?"on":"")+'">Admin</button></div>'+
+    (U.role==="student"?'<select data-chg="demoStudent" aria-label="Als Schüler ansehen">'+opts+'</select>':"")+
+    '<span class="spacer"></span><button class="btn sm ghost" data-act="reset">Beispieldaten zurücksetzen</button>'+
+    '<p class="note">Im echten System entscheidet dein Login, welche Ansicht du siehst. Dieser Umschalter ist nur zum Ausprobieren.</p></div>';
+}
+
+/* ---------- Schüleransicht ---------- */
+function renderStudent(){
+  var st=student();
+  if(!st) return '<p>Noch keine Schüler angelegt.</p>';
+  var mon=addDays(mondayOf(new Date()),U.sWeek*7),sun=addDays(mon,6),now=Date.now();
+  var fam=(st.parent||st.name).split(" ").slice(-1)[0];
+  var h='<header class="head"><h1>Nachhilfe bei Mats</h1><p>Tipp auf eine freie Uhrzeit, um einen Termin zu buchen.</p>'+
+    '<div class="who" style="--c:'+st.color+'"><span class="av">'+esc(initials(st.name))+'</span>Familie '+esc(fam)+' · '+esc(st.name.split(" ")[0])+'</div></header>';
+
+  var up=S.bookings.filter(function(b){return b.studentId===st.id&&b.status==="booked"&&endDT(b).getTime()>now})
+    .sort(function(a,b){return startDT(a.date,a.start)-startDT(b.date,b.start)});
+  if(up.length){var n=up[0];h+='<div class="card nextcard"><div><div class="k">Dein nächster Termin</div><div class="v">'+fmtDay(parseISO(n.date))+', '+timeRange(n)+' Uhr</div></div></div>'}
+
+  h+='<div class="toolbar"><div class="wk"><button class="iconbtn" data-act="sweek" data-d="-1" aria-label="Vorherige Woche"'+(U.sWeek<=0?" disabled":"")+'>‹</button>'+
+    '<span class="wklabel">'+mon.getDate()+'. '+MON[mon.getMonth()]+' – '+sun.getDate()+'. '+MON[sun.getMonth()]+'</span>'+
+    '<button class="iconbtn" data-act="sweek" data-d="1" aria-label="Nächste Woche"'+(U.sWeek>=11?" disabled":"")+'>›</button></div></div>';
+
+  var cards="";
+  for(var i=0;i<7;i++){
+    var d=addDays(mon,i),iso=toISO(d);
+    var mine=S.bookings.filter(function(b){return b.studentId===st.id&&b.status==="booked"&&b.date===iso});
+    var fs=freeStarts(iso,60);
+    if(!fs.length&&!mine.length) continue;
+    var isToday=iso===toISO(new Date());
+    cards+='<div class="sday'+(isToday?" today":"")+'"><div class="dn">'+WD_L[d.getDay()]+'</div><div class="dd">'+d.getDate()+'. '+MON[d.getMonth()]+(isToday?" · heute":"")+'</div>';
+    mine.forEach(function(b){cards+='<div class="mychip"><b>'+timeRange(b)+'</b><span>Dein Termin'+(b.seriesId?" · jede Woche":"")+'</span></div>'});
+    if(fs.length) cards+='<div class="chips">'+fs.map(function(t){return '<button class="chip" data-act="pick" data-iso="'+iso+'" data-t="'+t+'" aria-label="'+fmtDay(d)+' um '+t+' buchen">'+t+'</button>'}).join("")+'</div>';
+    cards+='</div>';
+  }
+  h+=cards?'<div class="sgrid">'+cards+'</div>':'<p class="none">In dieser Woche ist leider nichts mehr frei. Schau in der nächsten Woche.</p>';
+
+  h+='<section class="sect"><h2>Meine Termine</h2>';
+  if(!up.length){h+='<p class="none">Noch keine Termine gebucht.</p>'}
+  else{
+    var seen={};
+    up.forEach(function(b){
+      if(!b.seriesId||seen[b.seriesId]) return; seen[b.seriesId]=1;
+      var rest=up.filter(function(x){return x.seriesId===b.seriesId}),last=parseISO(rest[rest.length-1].date);
+      h+='<div class="card series"><div><div style="font-weight:600">Jeden '+WD_L[parseISO(b.date).getDay()]+', '+timeRange(b)+'</div>'+
+        '<div class="muted small">Noch '+rest.length+' Termin'+(rest.length===1?"":"e")+' bis '+last.getDate()+'. '+MON[last.getMonth()]+'</div></div>'+
+        '<button class="btn sm danger" data-act="endSeries" data-sid="'+b.seriesId+'">Serie beenden</button></div>';
+    });
+    h+='<div class="card">';
+    up.slice(0,12).forEach(function(b){
+      h+='<div class="rowitem"><div><div class="t">'+fmtDay(parseISO(b.date))+'</div><div class="s">'+timeRange(b)+' Uhr · '+fmtDur(b.dur)+'</div></div>'+
+        (canCancel(b)?'<button class="btn sm" data-act="cancelOne" data-id="'+b.id+'">Absagen</button>':'<div class="lock">Zu kurzfristig zum Absagen. Bitte Mats direkt schreiben.</div>')+'</div>';
+    });
+    if(up.length>12) h+='<div class="rowitem"><div class="s">+ '+(up.length-12)+' weitere Termine</div></div>';
+    h+='</div>';
+  }
+  h+='<p class="fine" style="margin-top:12px">Absagen ist kostenlos bis '+S.settings.cancelHours+' Stunden vor dem Termin, zum Beispiel für Ferien.</p></section>';
+  return h;
+}
+
+function openBook(iso,start){
+  var st=student(),d=parseISO(iso);
+  var valid=DURS.filter(function(x){return freeStarts(iso,x).indexOf(start)>=0});
+  var dur=valid.indexOf(usualDur(st.id))>=0?usualDur(st.id):valid[0];
+  var html='<h3>Termin buchen</h3>'+
+    '<div class="summary"><div class="big">'+fmtDay(d)+'</div><div id="bTime"></div></div>'+
+    '<p class="fieldlbl">Wie lange?</p><div class="durpick" id="bDur">'+DURS.map(function(x){
+      return '<button type="button" data-v="'+x+'"'+(valid.indexOf(x)<0?" disabled":"")+'>'+fmtDur(x)+'<small>'+(st.prices[x]!=null?money(st.prices[x]):"–")+'</small></button>';
+    }).join("")+'</div>'+
+    '<label class="switch">Jede Woche zu dieser Zeit<input type="checkbox" id="rep"></label>'+
+    '<div class="repbox" id="repbox" hidden><div class="field">Bis wann?<input type="date" id="repend" min="'+iso+'" max="'+toISO(addDays(d,364))+'" value="'+toISO(addDays(d,7*11))+'"></div>'+
+    '<div class="quick"><button class="btn sm" data-w="4">4 Wochen</button><button class="btn sm" data-w="12">12 Wochen</button><button class="btn sm" data-w="26">Halbes Jahr</button></div>'+
+    '<div class="prev" id="prev"></div></div>'+
+    '<div class="actions" style="margin-top:14px"><button class="btn ghost" id="bNo">Abbrechen</button><button class="btn primary" id="bYes">Termin buchen</button></div>';
+  openModal(html,function(m){
+    var rep=m.querySelector("#rep"),box=m.querySelector("#repbox"),endIn=m.querySelector("#repend"),prev=m.querySelector("#prev"),yes=m.querySelector("#bYes"),tEl=m.querySelector("#bTime");
+    var plan=[iso];
+    function calc(){
+      Array.prototype.forEach.call(m.querySelectorAll("#bDur button"),function(b){b.classList.toggle("on",+b.dataset.v===dur)});
+      tEl.textContent=start+"–"+fromMin(toMin(start)+dur)+" Uhr · "+money(st.prices[dur]);
+      if(!rep.checked){plan=[iso];box.hidden=true;yes.textContent="Termin buchen";return}
+      box.hidden=false;
+      var end=endIn.value?parseISO(endIn.value):d;if(end<d)end=d;var max=addDays(d,364);if(end>max)end=max;
+      var good=[],bad=[];
+      for(var x=new Date(d);x<=end;x=addDays(x,7)){var i2=toISO(x);(i2===iso||freeStarts(i2,dur).indexOf(start)>=0?good:bad).push(i2)}
+      plan=good;
+      var p='<b>'+good.length+' Termin'+(good.length===1?"":"e")+'</b>';
+      if(bad.length) p+='<div class="bad">Nicht frei, wird übersprungen: '+bad.map(function(b){return fmtShort(parseISO(b))}).join(", ")+'</div>';
+      prev.innerHTML=p;
+      yes.textContent=good.length===1?"Termin buchen":good.length+" Termine buchen";
+    }
+    Array.prototype.forEach.call(m.querySelectorAll("#bDur button"),function(b){b.addEventListener("click",function(){if(!b.disabled){dur=+b.dataset.v;calc()}})});
+    rep.addEventListener("change",calc);endIn.addEventListener("input",calc);
+    Array.prototype.forEach.call(m.querySelectorAll("[data-w]"),function(b){b.addEventListener("click",function(){endIn.value=toISO(addDays(d,7*(+b.dataset.w-1)));calc()})});
+    m.querySelector("#bNo").onclick=closeModal;
+    yes.onclick=function(){
+      var sid=plan.length>1?uid():null,price=st.prices[dur]||0;
+      plan.forEach(function(i2){S.bookings.push({id:uid(),studentId:st.id,date:i2,start:start,dur:dur,seriesId:sid,status:"booked",paid:false,price:price})});
+      save();closeModal();render();
+      toast(plan.length>1?plan.length+" Termine gebucht, jeden "+WD_L[d.getDay()]+" um "+start:"Gebucht: "+fmtShort(d)+", "+start+" Uhr");
+    };
+    calc();
+  });
+}
+
+/* ---------- Adminansicht ---------- */
+function renderAdmin(){
+  var h='<header class="head"><h1>Übersicht</h1><p>Termine, deine Zeiten, Preise und Zahlungen an einem Ort.</p></header>';
+  var tabs=[["cal","Kalender"],["tpl","Standardzeiten"],["stud","Schüler & Preise"],["pay","Zahlungen"]];
+  h+='<nav class="tabs" role="tablist">'+tabs.map(function(t){return '<button role="tab" aria-selected="'+(U.aTab===t[0])+'" class="'+(U.aTab===t[0]?"on":"")+'" data-act="atab" data-v="'+t[0]+'">'+t[1]+'</button>'}).join("")+'</nav>';
+  if(U.aTab==="cal") h+=adminCal();
+  else if(U.aTab==="tpl") h+=adminTpl();
+  else if(U.aTab==="stud") h+=adminStudents();
+  else h+=adminPay();
+  return h;
+}
+
+function adminCal(){
+  var label,h='',week=U.aMode==="week";
+  if(week){var m=parseISO(U.aWeek),s=addDays(m,6);label=m.getDate()+". "+MON[m.getMonth()]+" – "+s.getDate()+". "+MON[s.getMonth()]}
+  else{var mm=parseISO(U.aMonth);label=MON_L[mm.getMonth()]+" "+mm.getFullYear()}
+  h+='<div class="toolbar"><div class="wk"><button class="iconbtn" data-act="anav" data-d="-1" aria-label="Zurück">‹</button><span class="wklabel">'+label+'</span><button class="iconbtn" data-act="anav" data-d="1" aria-label="Weiter">›</button></div>'+
+    '<button class="btn sm" data-act="anav" data-d="0">Heute</button><span class="grow"></span>'+
+    '<div class="seg"><button data-act="amode" data-v="week" class="'+(week?"on":"")+'">Woche</button><button data-act="amode" data-v="month" class="'+(!week?"on":"")+'">Monat</button></div>'+
+    (week&&!U.aEdit?'<button class="btn sm" data-act="aedit">Zeiten bearbeiten</button>':"")+
+    (!U.aEdit?'<button class="btn primary sm" data-act="addBooking">+ Termin eintragen</button>':"")+'</div>';
+  if(week&&U.aEdit){
+    h+='<div class="edithint"><p>Tippe oder ziehe über Zeiten, um sie freizugeben oder zu blockieren. Tippe oben auf einen Tag, um ihn ganz zu blockieren oder zurückzusetzen.</p><button class="btn primary sm" data-act="aedit">Fertig</button></div>';
+  }else if(week){
+    var mon=parseISO(U.aWeek),a=toISO(mon),b=toISO(addDays(mon,6));
+    var wk=S.bookings.filter(function(x){return x.status==="booked"&&x.date>=a&&x.date<=b});
+    var hrs=wk.reduce(function(s,x){return s+x.dur},0)/60,sum=wk.reduce(function(s,x){return s+x.price},0);
+    h+='<p class="weeksum">Diese Woche: <b>'+String(hrs).replace(".",",")+' Std.</b> gebucht · <b>'+money(sum)+'</b></p>';
+  }
+  h+=week?grid("week",parseISO(U.aWeek),U.aEdit):monthGrid(parseISO(U.aMonth));
+  if(!U.aEdit) h+='<div class="card infocard"><span class="ic">🍏</span><p><b>Apple Kalender:</b> Sobald die Datenbank steht, bekommst du hier einen Abo-Link. Den trägst du einmal in Apple Kalender ein, danach erscheinen alle Buchungen automatisch.</p></div>';
+  return h;
+}
+
+function adminTpl(){
+  var h='<div class="edithint"><p>Deine normale Woche. Diese Zeiten gelten automatisch jede Woche. Tippe oder ziehe, um Zeiten freizugeben oder zu blockieren. Einzelne Wochen änderst du im Kalender über „Zeiten bearbeiten“.</p></div>';
+  h+=grid("tpl",null,true);
+  var st=S.settings;
+  h+='<div class="card panel" style="margin-top:16px"><h3>Absagen</h3><p class="muted small">Bis wann dürfen Familien selbst kostenlos absagen?</p>'+
+    '<select class="inp" data-chg="setting" data-k="cancelHours">'+[12,24,48].map(function(v){return '<option value="'+v+'"'+(+st.cancelHours===v?" selected":"")+'>'+v+' Stunden vorher</option>'}).join("")+'</select></div>';
+  return h;
+}
+
+/* Wochenraster: kind "week" (echte Woche) oder "tpl" (Standardwoche); edit = Zeiten per Tippen/Ziehen ändern */
+function grid(kind,mon,edit){
+  var cols=[],todayISO=toISO(new Date()),now=Date.now();
+  if(kind==="tpl") ORDER.forEach(function(wd){cols.push({wd:wd,slots:S.tpl[wd]||[]})});
+  else for(var i=0;i<7;i++){var d=addDays(mon,i),iso=toISO(d);cols.push({d:d,iso:iso,wd:d.getDay(),slots:daySlots(iso),custom:isCustom(iso)})}
+  var bk=kind==="week"?S.bookings.filter(function(b){return b.status!=="cancelled"&&b.date>=cols[0].iso&&b.date<=cols[6].iso}):[];
+  var lo,hi;
+  if(edit){lo=EDIT_LO;hi=EDIT_HI}else{lo=1440;hi=0}
+  cols.forEach(function(c){c.slots.forEach(function(m){lo=Math.min(lo,m);hi=Math.max(hi,m+SLOT)})});
+  Object.keys(S.tpl).forEach(function(k){S.tpl[k].forEach(function(m){if(!edit){lo=Math.min(lo,m);hi=Math.max(hi,m+SLOT)}})});
+  bk.forEach(function(b){lo=Math.min(lo,toMin(b.start));hi=Math.max(hi,toMin(b.start)+b.dur)});
+  if(lo>=hi){lo=8*60;hi=18*60}
+  if(!edit){lo=Math.max(0,Math.floor(lo/60)*60-60);hi=Math.min(1440,Math.ceil(hi/60)*60+60)}
+  var H=Math.round((hi-lo)*PPM);
+  var h='<div class="tg-scroll"><div class="tg'+(edit?" edit":"")+'" style="--h:'+H+'px;--hr:'+(60*PPM)+'px;--cell:'+(SLOT*PPM)+'px">';
+  h+='<div class="tg-head"><div></div>'+cols.map(function(c){
+    var inner=kind==="tpl"?'<div class="dn">'+WD_L[c.wd].slice(0,2)+'</div>':'<div class="dn">'+WD_S[c.wd]+'</div><span class="num">'+c.d.getDate()+'</span>'+(c.custom&&edit?'<span class="cust">angepasst</span>':"");
+    var isToday=c.iso===todayISO;
+    if(edit&&kind==="week"&&!(endOfDayPast(c.d))) return '<div class="'+(isToday?"today":"")+'" style="padding:0"><button class="dh" data-act="dayMenu" data-iso="'+c.iso+'">'+inner+'</button></div>';
+    if(edit&&kind==="tpl") return '<div style="padding:0"><button class="dh" data-act="tplMenu" data-wd="'+c.wd+'">'+inner+'</button></div>';
+    return '<div class="'+(isToday?"today":"")+'">'+inner+'</div>';
+  }).join("")+'</div>';
+  h+='<div class="tg-body"><div class="tg-times">';
+  for(var t=lo+60-(lo%60);t<hi;t+=60) h+='<span class="hl" style="top:'+((t-lo)*PPM)+'px">'+fromMin(t)+'</span>';
+  h+='</div>';
+  cols.forEach(function(c){
+    h+='<div class="tg-col">';
+    if(edit){
+      var set={};c.slots.forEach(function(m){set[m]=1});
+      for(var m=lo;m<hi;m+=SLOT){
+        var past=c.iso&&startDT(c.iso,fromMin(m)).getTime()<now;
+        h+='<div class="cell'+(set[m]?" on":"")+(past?" past":"")+'" data-m="'+m+'" '+(c.iso?'data-iso="'+c.iso+'"':'data-wd="'+c.wd+'"')+'></div>';
+      }
+    }else{
+      toWindows(c.slots).forEach(function(w){h+='<div class="band" style="top:'+((w[0]-lo)*PPM)+'px;height:'+((w[1]-w[0])*PPM)+'px"></div>'});
+    }
+    bk.filter(function(b){return b.date===c.iso}).forEach(function(b){
+      var s=student(b.studentId)||{name:"Ehemalig",color:"#888"},top=(toMin(b.start)-lo)*PPM,ht=Math.max(22,b.dur*PPM-2);
+      var past=endDT(b).getTime()<now;
+      var pay=b.paid?'<span class="pd">bezahlt</span>':(past||b.status==="late"?'<span class="op">offen</span>':"");
+      h+='<button class="ev'+(b.status==="late"?" late":"")+'" style="--c:'+s.color+';top:'+top+'px;height:'+ht+'px" data-act="evopen" data-id="'+b.id+'"'+(edit?' tabindex="-1"':"")+'>'+
+        '<b>'+esc(s.name.split(" ")[0])+'</b>'+timeRange(b)+(b.status==="late"?"<br>kurzfr. abgesagt":"")+(pay&&!edit?"<br>"+pay:"")+'</button>';
+    });
+    if(c.iso===todayISO){var nm=new Date().getHours()*60+new Date().getMinutes();if(nm>lo&&nm<hi)h+='<div class="nowline" style="top:'+((nm-lo)*PPM)+'px"></div>'}
+    h+='</div>';
+  });
+  return h+'</div></div></div>';
+}
+function endOfDayPast(d){var x=new Date(d);x.setHours(23,59,59,0);return x.getTime()<Date.now()}
+
+function monthGrid(first){
+  var start=mondayOf(first),todayISO=toISO(new Date());
+  var h='<div class="mgrid">'+["Mo","Di","Mi","Do","Fr","Sa","So"].map(function(x){return '<div class="mh">'+x+'</div>'}).join("");
+  for(var i=0;i<42;i++){
+    var d=addDays(start,i),iso=toISO(d);
+    var list=S.bookings.filter(function(b){return b.date===iso&&b.status!=="cancelled"}).sort(function(a,b){return toMin(a.start)-toMin(b.start)});
+    var blocked=!daySlots(iso).length&&(S.tpl[d.getDay()]||[]).length;
+    var cls="mcell"+(d.getMonth()!==first.getMonth()?" out":"")+(iso===todayISO?" today":"")+(blocked?" blocked":"");
+    h+='<button class="'+cls+'" data-act="dayopen" data-iso="'+iso+'" aria-label="'+fmtDay(d)+', '+list.length+' Termine"><span class="n">'+d.getDate()+'</span>';
+    list.slice(0,3).forEach(function(b){var s=student(b.studentId)||{name:"?",color:"#888"};h+='<span class="me'+(b.status==="late"?" late":"")+'" style="--c:'+s.color+'"><i></i>'+b.start+' <span>'+esc(s.name.split(" ")[0])+'</span></span>'});
+    if(list.length>3) h+='<span class="me muted">+'+(list.length-3)+' weitere</span>';
+    h+='</button>';
+  }
+  return h+'</div>';
+}
+
+/* Zeiten per Tippen/Ziehen ändern */
+var paint=null;
+function slotArr(c){
+  if(c.dataset.iso){var iso=c.dataset.iso;if(!isCustom(iso))S.ov[iso]=(S.tpl[parseISO(iso).getDay()]||[]).slice();return S.ov[iso]}
+  return (S.tpl[c.dataset.wd]=S.tpl[c.dataset.wd]||[]);
+}
+function applyCell(c){
+  if(!c||c.classList.contains("past")||c.classList.contains("on")===paint.on) return;
+  c.classList.toggle("on",paint.on);
+  var arr=slotArr(c),m=+c.dataset.m,i=arr.indexOf(m);
+  if(paint.on&&i<0)arr.push(m);if(!paint.on&&i>=0)arr.splice(i,1);
+  arr.sort(function(a,b){return a-b});
+  if(c.dataset.iso) paint.isos[c.dataset.iso]=1;
+  paint.changed=true;
+}
+document.addEventListener("pointerdown",function(e){
+  var c=e.target.closest&&e.target.closest(".cell");if(!c||c.classList.contains("past"))return;
+  e.preventDefault();paint={on:!c.classList.contains("on"),changed:false,isos:{}};applyCell(c);
+});
+document.addEventListener("pointermove",function(e){
+  if(!paint)return;var el=document.elementFromPoint(e.clientX,e.clientY);applyCell(el&&el.closest&&el.closest(".cell"));
+});
+function endPaint(){
+  if(!paint)return;
+  if(paint.changed){
+    Object.keys(paint.isos).forEach(function(iso){ // gleich wie Standard? Dann Anpassung entfernen
+      var t=(S.tpl[parseISO(iso).getDay()]||[]).join(","),o=S.ov[iso].slice().sort(function(a,b){return a-b}).join(",");if(t===o)delete S.ov[iso];
+    });
+    save();render();
+  }
+  paint=null;
+}
+document.addEventListener("pointerup",endPaint);document.addEventListener("pointercancel",endPaint);
+
+function openDayMenu(iso){
+  var d=parseISO(iso),n=S.bookings.filter(function(b){return b.date===iso&&b.status==="booked"}).length;
+  var html='<h3>'+fmtDay(d)+'</h3>'+(n?'<p class="muted small" style="margin:0 0 14px">An diesem Tag '+(n===1?"ist 1 Termin":"sind "+n+" Termine")+' gebucht. Diese bleiben bestehen.</p>':"")+
+    '<div class="actions stack"><button class="btn danger" id="dBlock">Ganzen Tag blockieren</button>'+
+    (isCustom(iso)?'<button class="btn" id="dReset">Auf Standardzeiten zurücksetzen</button>':"")+
+    '<button class="btn ghost" id="dNo">Abbrechen</button></div>';
+  openModal(html,function(m){
+    m.querySelector("#dNo").onclick=closeModal;
+    m.querySelector("#dBlock").onclick=function(){S.ov[iso]=[];save();closeModal();render();toast("Tag blockiert")};
+    var r=m.querySelector("#dReset");if(r)r.onclick=function(){delete S.ov[iso];save();closeModal();render();toast("Standardzeiten wiederhergestellt")};
+  });
+}
+function openTplMenu(wd){
+  openModal('<h3>'+WD_L[wd]+'</h3><div class="actions stack"><button class="btn danger" id="tClear">Keine Zeiten an diesem Tag</button><button class="btn ghost" id="tNo">Abbrechen</button></div>',function(m){
+    m.querySelector("#tNo").onclick=closeModal;
+    m.querySelector("#tClear").onclick=function(){S.tpl[wd]=[];save();closeModal();render()};
+  });
+}
+
+function openEvent(id){
+  var b=S.bookings.filter(function(x){return x.id===id})[0];if(!b)return;
+  var s=student(b.studentId)||{name:"Ehemalig",parent:""},d=parseISO(b.date),past=endDT(b).getTime()<Date.now();
+  var status=b.status==="late"?'<span class="tag red">Kurzfristig abgesagt, wird berechnet</span>':past?'<span class="tag grey">Stattgefunden</span>':'<span class="tag">Geplant</span>';
+  var html='<h3>'+esc(s.name)+'</h3>'+
+    '<dl class="kv"><dt>Familie</dt><dd>'+esc(s.parent||"–")+'</dd><dt>Termin</dt><dd>'+fmtDay(d)+', '+timeRange(b)+'</dd><dt>Dauer</dt><dd>'+fmtDur(b.dur)+'</dd><dt>Betrag</dt><dd>'+money(b.price)+'</dd>'+
+    '<dt>Art</dt><dd>'+(b.seriesId?"Jede Woche":"Einzeltermin")+'</dd><dt>Status</dt><dd>'+status+'</dd></dl>'+
+    '<label class="switch">Bezahlt<input type="checkbox" id="evPaid"'+(b.paid?" checked":"")+'></label><div class="actions stack" style="margin-top:8px">';
+  if(b.status==="booked"&&!past){
+    html+='<button class="btn" id="evCancel">Termin absagen</button><button class="btn danger" id="evLate">Kurzfristige Absage (wird berechnet)</button>';
+    if(b.seriesId) html+='<button class="btn danger" id="evSeries">Serie ab diesem Termin beenden</button>';
+  }
+  if(b.status==="late") html+='<button class="btn" id="evWaive">Doch nicht berechnen</button>';
+  html+='<button class="btn ghost" id="evClose">Schließen</button></div>';
+  openModal(html,function(m){
+    m.querySelector("#evPaid").addEventListener("change",function(e){b.paid=e.target.checked;save();render();toast(b.paid?"Als bezahlt markiert":"Als offen markiert")});
+    m.querySelector("#evClose").onclick=closeModal;
+    var c=m.querySelector("#evCancel");if(c)c.onclick=function(){b.status="cancelled";save();closeModal();render();toast("Termin abgesagt, die Zeit ist wieder frei")};
+    var l=m.querySelector("#evLate");if(l)l.onclick=function(){b.status="late";save();closeModal();render();toast("Vermerkt, erscheint in den Zahlungen")};
+    var sr=m.querySelector("#evSeries");if(sr)sr.onclick=function(){
+      var n=0;S.bookings.forEach(function(x){if(x.seriesId===b.seriesId&&x.status==="booked"&&startDT(x.date,x.start)>=startDT(b.date,b.start)){x.status="cancelled";n++}});
+      save();closeModal();render();toast(n+" Termine der Serie abgesagt");
+    };
+    var w=m.querySelector("#evWaive");if(w)w.onclick=function(){b.status="cancelled";b.paid=false;save();closeModal();render();toast("Wird nicht berechnet")};
+  });
+}
+
+function openAddBooking(){
+  if(!S.students.length){toast("Leg zuerst einen Schüler an");return}
+  var dur=usualDur(S.students[0].id);
+  var html='<h3>Termin eintragen</h3>'+
+    '<div class="field" style="margin-bottom:10px">Schüler<select class="inp" id="abS">'+S.students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+'</option>'}).join("")+'</select></div>'+
+    '<div class="field" style="margin-bottom:10px">Datum<input type="date" id="abD" value="'+toISO(new Date())+'"></div>'+
+    '<p class="fieldlbl">Dauer</p><div class="durpick" id="abDur">'+DURS.map(function(d){return '<button type="button" data-v="'+d+'">'+fmtDur(d)+'</button>'}).join("")+'</div>'+
+    '<div class="field" style="margin-bottom:6px">Beginn<select class="inp" id="abT"></select></div><p class="fine" id="abInfo"></p>'+
+    '<div class="actions"><button class="btn ghost" id="abNo">Abbrechen</button><button class="btn primary" id="abYes">Termin eintragen</button></div>';
+  openModal(html,function(m){
+    var sS=m.querySelector("#abS"),dI=m.querySelector("#abD"),tS=m.querySelector("#abT"),info=m.querySelector("#abInfo"),yes=m.querySelector("#abYes");
+    function upd(){
+      Array.prototype.forEach.call(m.querySelectorAll("#abDur button"),function(x){x.classList.toggle("on",+x.dataset.v===dur)});
+      var fs=dI.value?freeStarts(dI.value,dur):[],s=student(sS.value);
+      tS.innerHTML=fs.map(function(t){return '<option>'+t+'</option>'}).join("");
+      info.textContent=fs.length?"Betrag: "+money(s.prices[dur]||0):"An diesem Tag ist keine freie Zeit für "+fmtDur(dur)+". Gib die Zeit im Kalender über „Zeiten bearbeiten“ frei.";
+      yes.disabled=!fs.length;
+    }
+    Array.prototype.forEach.call(m.querySelectorAll("#abDur button"),function(b){b.addEventListener("click",function(){dur=+b.dataset.v;upd()})});
+    sS.addEventListener("change",function(){dur=usualDur(sS.value);upd()});dI.addEventListener("input",upd);
+    m.querySelector("#abNo").onclick=closeModal;
+    yes.onclick=function(){
+      var s=student(sS.value);
+      S.bookings.push({id:uid(),studentId:s.id,date:dI.value,start:tS.value,dur:dur,seriesId:null,status:"booked",paid:false,price:s.prices[dur]||0});
+      save();closeModal();U.aMode="week";U.aEdit=false;U.aWeek=toISO(mondayOf(parseISO(dI.value)));saveUI();render();toast("Eingetragen: "+s.name+", "+fmtShort(parseISO(dI.value))+" "+tS.value);
+    };
+    upd();
+  });
+}
+
+function adminStudents(){
+  var now=Date.now();
+  var h='<div class="toolbar"><p class="muted small" style="margin:0;flex:1;min-width:14em">Ein Konto pro Familie: Eltern und Schüler nutzen denselben Login. Jede Familie sieht nur ihre eigenen Preise.</p><button class="btn primary sm" data-act="addStudent">+ Schüler anlegen</button></div>';
+  h+='<div class="sgrid2">';
+  S.students.forEach(function(s){
+    var bs=S.bookings.filter(function(b){return b.studentId===s.id});
+    var hrs=bs.filter(function(b){return b.status==="booked"&&endDT(b).getTime()<now}).reduce(function(a,b){return a+b.dur},0)/60;
+    var open=bs.filter(function(b){return !b.paid&&(b.status==="late"||(b.status==="booked"&&endDT(b).getTime()<now))}).reduce(function(a,b){return a+b.price},0);
+    h+='<div class="card scard" style="--c:'+s.color+'">'+
+      '<input class="nm" value="'+esc(s.name)+'" data-chg="sfield" data-id="'+s.id+'" data-k="name" aria-label="Name des Schülers">'+
+      '<div class="f"><label>Eltern</label><input type="text" value="'+esc(s.parent)+'" data-chg="sfield" data-id="'+s.id+'" data-k="parent"></div>'+
+      '<div class="f"><label>E-Mail</label><input type="email" value="'+esc(s.email)+'" data-chg="sfield" data-id="'+s.id+'" data-k="email"></div>'+
+      '<div class="prices">'+DURS.map(function(d){return '<label>'+fmtDur(d)+' (HK$)<input type="number" min="0" step="10" value="'+(s.prices[d]!=null?s.prices[d]:"")+'" data-chg="sprice" data-id="'+s.id+'" data-d="'+d+'"></label>'}).join("")+'</div>'+
+      '<p class="sstats">'+String(hrs).replace(".",",")+' Std. gehalten · '+(open?'<span style="color:var(--danger);font-weight:600">'+money(open)+' offen</span>':"nichts offen")+'</p>'+
+      '<div class="srow"><button class="btn sm" data-act="invite" data-id="'+s.id+'">Einladung senden</button>'+
+      (bs.length?"":'<button class="btn sm danger" data-act="delStudent" data-id="'+s.id+'">Entfernen</button>')+'</div></div>';
+  });
+  return h+'</div><p class="fine" style="margin-top:14px">Neue Preise gelten für neue Buchungen. Bereits gebuchte Termine behalten ihren Preis.</p>';
+}
+
+function payRows(){
+  var m=parseISO(U.payMonth),y=m.getFullYear(),mo=m.getMonth();
+  return S.bookings.filter(function(b){var d=parseISO(b.date);return d.getFullYear()===y&&d.getMonth()===mo&&(b.status==="booked"||b.status==="late")&&(U.payFilter==="all"||b.studentId===U.payFilter)})
+    .sort(function(a,b){return (a.date+a.start)<(b.date+b.start)?-1:1});
+}
+function adminPay(){
+  var m=parseISO(U.payMonth),now=Date.now(),rows=payRows(),due=0,paid=0,planned=0,perS={};
+  rows.forEach(function(b){var past=b.status==="late"||endDT(b).getTime()<now;if(b.paid)paid+=b.price;else if(past){due+=b.price;perS[b.studentId]=(perS[b.studentId]||0)+b.price}else planned+=b.price});
+  var h='<div class="toolbar"><div class="wk"><button class="iconbtn" data-act="paynav" data-d="-1" aria-label="Vorheriger Monat">‹</button><span class="wklabel">'+MON_L[m.getMonth()]+' '+m.getFullYear()+'</span><button class="iconbtn" data-act="paynav" data-d="1" aria-label="Nächster Monat">›</button></div><span class="grow"></span>'+
+    '<select class="inp" data-chg="payFilter" aria-label="Schüler filtern"><option value="all">Alle Schüler</option>'+S.students.map(function(s){return '<option value="'+s.id+'"'+(U.payFilter===s.id?" selected":"")+'>'+esc(s.name)+'</option>'}).join("")+'</select>'+
+    '<button class="btn sm" data-act="copyTsv">Für Google Sheet kopieren</button></div>';
+  h+='<div class="sums"><div class="card sum open"><div class="v">'+money(due)+'</div><div class="k">Fällig und noch offen</div></div>'+
+    '<div class="card sum paid"><div class="v">'+money(paid)+'</div><div class="k">Bezahlt</div></div>'+
+    '<div class="card sum"><div class="v">'+money(planned)+'</div><div class="k">Noch geplant</div></div></div>';
+  var ps=Object.keys(perS);
+  if(ps.length&&U.payFilter==="all") h+='<p class="perstudent">Offen: '+ps.map(function(id){var s=student(id);return esc(s?s.name:"Ehemalig")+" "+money(perS[id])}).join(" · ")+'</p>';
+  if(!rows.length) return h+'<p class="none">In diesem Monat gibt es keine Stunden.</p>';
+  h+='<div class="card tbl-wrap"><table class="pay"><thead><tr><th>Datum</th><th>Schüler</th><th>Dauer</th><th class="num">Betrag</th><th>Status</th></tr></thead><tbody>';
+  rows.forEach(function(b){
+    var s=student(b.studentId)||{name:"Ehemalig",color:"#888"},d=parseISO(b.date),future=b.status==="booked"&&endDT(b).getTime()>=now;
+    h+='<tr><td>'+fmtShort(d)+', '+b.start+(future?'<span class="tag grey">geplant</span>':"")+(b.status==="late"?'<span class="tag red">kurzfr. abgesagt</span>':"")+'</td>'+
+      '<td><span class="dot" style="--c:'+s.color+'"></span>'+esc(s.name)+'</td><td>'+fmtDur(b.dur)+'</td><td class="num">'+money(b.price)+'</td>'+
+      '<td><button class="paybtn '+(b.paid?"paid":"open")+'" data-act="togglePaid" data-id="'+b.id+'" aria-pressed="'+b.paid+'">'+(b.paid?"Bezahlt":"Offen")+'</button></td></tr>';
+  });
+  return h+'</tbody></table></div><p class="fine" style="margin-top:10px">Tipp auf den Status, um zwischen Offen und Bezahlt zu wechseln. Mit der Datenbank landet das später automatisch im Google Sheet.</p>';
+}
+
+function copyText(txt){
+  function fallback(){
+    var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand("copy")}catch(e){}document.body.removeChild(ta);
+    toast(ok?"Kopiert, jetzt im Google Sheet einfügen":"Kopieren ist in diesem Browser nicht möglich");
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){toast("Kopiert, jetzt im Google Sheet einfügen")},fallback);else fallback();
+}
+
+/* ---------- Ereignisse ---------- */
+var A={
+  closeModal:closeModal,
+  role:function(el){U.role=el.dataset.v;saveUI();render()},
+  reset:function(){confirmBox("Beispieldaten zurücksetzen?","Alle Buchungen, Schüler und Zeiten in diesem Prototyp werden auf den Anfang zurückgesetzt.","Zurücksetzen",function(){S=seed();save();U.studentId="s1";saveUI();render();toast("Zurückgesetzt")},true)},
+  sweek:function(el){U.sWeek=Math.max(0,Math.min(11,U.sWeek+(+el.dataset.d)));saveUI();render()},
+  pick:function(el){openBook(el.dataset.iso,el.dataset.t)},
+  cancelOne:function(el){
+    var b=S.bookings.filter(function(x){return x.id===el.dataset.id})[0];if(!b)return;
+    confirmBox("Termin absagen?",fmtDay(parseISO(b.date))+", "+timeRange(b)+" Uhr wird abgesagt."+(b.seriesId?" Die anderen Termine der Serie bleiben bestehen.":""),"Termin absagen",function(){b.status="cancelled";save();render();toast("Termin abgesagt")},true);
+  },
+  endSeries:function(el){
+    var sid=el.dataset.sid,now=Date.now();
+    var list=S.bookings.filter(function(x){return x.seriesId===sid&&x.status==="booked"&&endDT(x).getTime()>now});
+    var ok=list.filter(canCancel),locked=list.length-ok.length;
+    confirmBox("Serie beenden?",ok.length+" kommende Termine werden abgesagt."+(locked?" Der Termin in den nächsten "+S.settings.cancelHours+" Std. bleibt bestehen.":""),"Serie beenden",function(){ok.forEach(function(x){x.status="cancelled"});save();render();toast("Serie beendet")},true);
+  },
+  atab:function(el){U.aTab=el.dataset.v;U.aEdit=false;saveUI();render()},
+  amode:function(el){U.aMode=el.dataset.v;if(U.aMode==="month")U.aEdit=false;saveUI();render()},
+  aedit:function(){U.aEdit=!U.aEdit;saveUI();render()},
+  anav:function(el){
+    var d=+el.dataset.d,t=new Date();
+    if(U.aMode==="week")U.aWeek=d===0?toISO(mondayOf(t)):toISO(addDays(parseISO(U.aWeek),7*d));
+    else{var m=parseISO(U.aMonth);U.aMonth=d===0?toISO(new Date(t.getFullYear(),t.getMonth(),1)):toISO(new Date(m.getFullYear(),m.getMonth()+d,1))}
+    saveUI();render();
+  },
+  dayopen:function(el){U.aMode="week";U.aWeek=toISO(mondayOf(parseISO(el.dataset.iso)));saveUI();render()},
+  dayMenu:function(el){openDayMenu(el.dataset.iso)},
+  tplMenu:function(el){openTplMenu(+el.dataset.wd)},
+  evopen:function(el){if(!U.aEdit)openEvent(el.dataset.id)},
+  addBooking:openAddBooking,
+  addStudent:function(){
+    var used=S.students.map(function(s){return s.color}),c=PALETTE.filter(function(p){return used.indexOf(p)<0})[0]||PALETTE[S.students.length%PALETTE.length];
+    S.students.push({id:"s"+uid(),name:"Neuer Schüler",parent:"",email:"",color:c,prices:{60:300,90:420,120:550}});save();render();
+    var ins=document.querySelectorAll(".scard .nm");if(ins.length){ins[ins.length-1].focus();ins[ins.length-1].select()}
+  },
+  delStudent:function(el){var s=student(el.dataset.id);confirmBox(s.name+" entfernen?","Das Konto wird gelöscht. Das geht nur, solange es noch keine Termine gibt.","Entfernen",function(){S.students=S.students.filter(function(x){return x.id!==s.id});save();render()},true)},
+  invite:function(el){var s=student(el.dataset.id);toast(s.email?"Im echten System geht jetzt eine Einladung an "+s.email:"Trag zuerst eine E-Mail-Adresse ein")},
+  paynav:function(el){var m=parseISO(U.payMonth);U.payMonth=toISO(new Date(m.getFullYear(),m.getMonth()+(+el.dataset.d),1));saveUI();render()},
+  togglePaid:function(el){var b=S.bookings.filter(function(x){return x.id===el.dataset.id})[0];if(!b)return;b.paid=!b.paid;save();render()},
+  copyTsv:function(){
+    var rows=payRows();if(!rows.length){toast("Keine Stunden in diesem Monat");return}
+    var lines=["Datum\tSchüler\tBeginn\tDauer (Std.)\tBetrag (HKD)\tStatus"];
+    rows.forEach(function(b){var s=student(b.studentId)||{name:"Ehemalig"},d=parseISO(b.date);
+      lines.push(pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()+"\t"+s.name+"\t"+b.start+"\t"+String(b.dur/60).replace(".",",")+"\t"+String(b.price).replace(".",",")+"\t"+(b.paid?"bezahlt":b.status==="late"?"kurzfr. abgesagt, offen":"offen"))});
+    copyText(lines.join("\n"));
+  }
+};
+var C={
+  demoStudent:function(el){U.studentId=el.value;saveUI();render()},
+  setting:function(el){S.settings[el.dataset.k]=+el.value;save();render();toast("Gespeichert")},
+  sfield:function(el){var s=student(el.dataset.id),v=el.value.trim();if(el.dataset.k==="name"&&!v){render();return}s[el.dataset.k]=v;save();render()},
+  sprice:function(el){var s=student(el.dataset.id),v=parseFloat(String(el.value).replace(",","."));if(isNaN(v)||v<0)delete s.prices[el.dataset.d];else s.prices[el.dataset.d]=Math.round(v*100)/100;save();toast("Preis gespeichert")},
+  payFilter:function(el){U.payFilter=el.value;saveUI();render()}
+};
+document.addEventListener("click",function(e){var el=e.target.closest("[data-act]");if(!el)return;var f=A[el.dataset.act];if(f){e.preventDefault();f(el,e)}});
+document.addEventListener("change",function(e){var el=e.target.closest("[data-chg]");if(!el)return;var f=C[el.dataset.chg];if(f)f(el,e)});
+
+render();
+})();
+</script>
+</body>
+</html>
