@@ -138,3 +138,25 @@ const TZ_NAMES: Record<string, string> = {
 export function tzName(tz: string) {
   return TZ_NAMES[tz] ?? tz.split('/').pop()!.replace(/_/g, ' ')
 }
+
+const TZ_SHORT: Record<string, string> = { 'Europe/Berlin': 'DE', 'Asia/Hong_Kong': 'HK', 'Asia/Shanghai': 'CN', 'Asia/Singapore': 'SG', 'Europe/London': 'UK' }
+
+// Short label for time columns: "DE", "HK", …
+export function tzShort(tz: string) {
+  return TZ_SHORT[tz] ?? tzName(tz).slice(0, 3)
+}
+
+// How many minutes the clock in `to` is ahead of the clock in `from` at instant `at`
+export function tzOffsetMin(at: Date, from: string, to: string) {
+  const a = zonedParts(at, from)
+  const b = zonedParts(at, to)
+  const [ay, am, ad] = a.iso.split('-').map(Number)
+  const [by, bm, bd] = b.iso.split('-').map(Number)
+  return (Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 60000 + b.min - a.min
+}
+
+// "+6 h", "+6.5 h", "−1 h"
+export function fmtOffset(min: number) {
+  const h = Math.abs(min) / 60
+  return `${min < 0 ? '−' : '+'}${Number.isInteger(h) ? h : h.toFixed(1)} h`
+}

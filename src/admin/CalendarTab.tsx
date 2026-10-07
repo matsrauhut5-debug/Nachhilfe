@@ -5,10 +5,13 @@ import {
   WD_SHORT,
   dayOfMonth,
   fmtDayLong,
+  fmtOffset,
   fmtWeekRange,
   isoAddDays,
   mondayOf,
   tzName,
+  tzOffsetMin,
+  tzShort,
   weekdayOf,
   zonedParts,
   zonedToUtc,
@@ -76,6 +79,8 @@ export default function CalendarTab({ settings }: { settings: Settings }) {
   if (!template) return <p className="muted">Loading …</p>
 
   const days = Array.from({ length: 7 }, (_, i) => isoAddDays(monday, i))
+  const offsetStart = tzOffsetMin(zonedToUtc(monday, 720, tz), tz, settings.second_timezone)
+  const offsetEnd = tzOffsetMin(zonedToUtc(sunday, 720, tz), tz, settings.second_timezone)
 
   async function commit(changes: Record<string, number[]>) {
     const results = await Promise.all(Object.entries(changes).map(([iso, slots]) => saveOverride(iso, slots)))
@@ -110,12 +115,14 @@ export default function CalendarTab({ settings }: { settings: Settings }) {
           <button className="btn primary sm" onClick={() => setEdit(false)}>Done</button>
         </div>
       ) : (
-        <p className="weeksum">All times are {tzName(tz)} time.</p>
+        <p className="weeksum">Tap a day at the top to block it or reset it to your usual hours.</p>
       )}
 
       <TimeGrid
         edit={edit}
         onCommit={commit}
+        mainLabel={tzShort(tz)}
+        second={{ label: tzShort(settings.second_timezone), offsetMin: offsetStart }}
         columns={days.map((iso) => {
           const isToday = iso === today.iso
           const custom = iso in overrides
@@ -126,11 +133,12 @@ export default function CalendarTab({ settings }: { settings: Settings }) {
               <>
                 <div className="dn">{WD_SHORT[weekdayOf(iso)]}</div>
                 <span className="num">{dayOfMonth(iso)}</span>
-                {custom && edit && <span className="cust">customised</span>}
+                {custom && <span className="cust">customised</span>}
               </>
             ),
             onHeadClick: () => setMenuIso(iso),
             slots: daySlots(iso),
+            usual: template[weekdayOf(iso)],
             pastBefore: iso < today.iso ? 'all' : isToday ? today.min : undefined,
             nowMin: isToday ? today.min : undefined,
             events: bookings
@@ -149,6 +157,16 @@ export default function CalendarTab({ settings }: { settings: Settings }) {
           }
         })}
       />
+
+      <div className="legend">
+        <span><i className="lg usual" />Usual hours</span>
+        <span><i className="lg extra" />Extra hours (only this day)</span>
+        <span>Booked lessons in the student's colour</span>
+      </div>
+      <p className="tznote">
+        {tzName(tz)} time, with <b>{tzName(settings.second_timezone)} time</b> next to it ({fmtOffset(offsetStart)}).
+        {offsetEnd !== offsetStart && ` Clock change this week: from Sunday the difference is ${fmtOffset(offsetEnd)}.`}
+      </p>
 
       {menuIso && (
         <Modal onClose={() => setMenuIso(null)}>

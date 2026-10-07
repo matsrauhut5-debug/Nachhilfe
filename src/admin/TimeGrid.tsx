@@ -4,8 +4,10 @@ import { SLOT, fromMin, toWindows } from '../lib/time'
 export type GridColumn = {
   key: string
   head: ReactNode
-  onHeadClick?: () => void // only used in edit mode
+  onHeadClick?: () => void
   slots: number[]
+  // the usual hours of this day; free slots outside them are shown as "extra" in another colour
+  usual?: number[]
   today?: boolean
   // cells starting before this minute are in the past and locked ('all' = whole day)
   pastBefore?: number | 'all'
@@ -25,7 +27,7 @@ export type GridEvent = {
 }
 
 const PPM = 1.1 // pixels per minute
-const EDIT_LO = 7 * 60
+const EDIT_LO = 5 * 60
 const EDIT_HI = 22 * 60
 
 type Paint = {
@@ -40,14 +42,17 @@ export default function TimeGrid(props: {
   columns: GridColumn[]
   edit: boolean
   onCommit?: (changes: Record<string, number[]>) => void
+  mainLabel?: string // e.g. "DE"
+  // optional second clock next to the times, e.g. Hong Kong
+  second?: { label: string; offsetMin: number }
 }) {
-  const { columns, edit } = props
+  const { columns, edit, second } = props
   const [draft, setDraft] = useState<Record<string, Set<number>> | null>(null)
   const paint = useRef<Paint | null>(null)
   const onCommit = useRef(props.onCommit)
   onCommit.current = props.onCommit
 
-  // Visible range: fixed 07–22 when editing, otherwise fitted to hours and lessons
+  // Visible range: fixed 05–22 when editing, otherwise fitted to hours and lessons
   let lo = edit ? EDIT_LO : 1440
   let hi = edit ? EDIT_HI : 0
   for (const c of columns) {
@@ -135,15 +140,23 @@ export default function TimeGrid(props: {
   }, [])
 
 
-  const style = { '--h': `${Math.round((hi - lo) * PPM)}px`, '--hr': `${60 * PPM}px`, '--cell': `${SLOT * PPM}px` } as CSSProperties
+  const style = {
+    '--h': `${Math.round((hi - lo) * PPM)}px`,
+    '--hr': `${60 * PPM}px`,
+    '--cell': `${SLOT * PPM}px`,
+    '--tcol': second ? '92px' : '52px',
+  } as CSSProperties
 
   return (
     <div className="tg-scroll">
       <div className={'tg' + (edit ? ' edit' : '')} style={style}>
         <div className="tg-head">
-          <div />
+          <div className="tzhead">
+            {second && <span className="tz2">{second.label}</span>}
+            {props.mainLabel && <span>{props.mainLabel}</span>}
+          </div>
           {columns.map((c) =>
-            edit && c.onHeadClick && c.pastBefore !== 'all' ? (
+            c.onHeadClick && c.pastBefore !== 'all' ? (
               <div key={c.key} className={c.today ? 'today' : ''} style={{ padding: 0 }}>
                 <button className="dh" onClick={c.onHeadClick}>{c.head}</button>
               </div>
@@ -155,25 +168,35 @@ export default function TimeGrid(props: {
         <div className="tg-body" onPointerDown={start}>
           <div className="tg-times">
             {hours.map((t) => (
-              <span key={t} className="hl" style={{ top: (t - lo) * PPM }}>{fromMin(t)}</span>
+              <span key={t} className="hl" style={{ top: (t - lo) * PPM }}>
+                {second && <span className="tz2">{fromMin((((t + second.offsetMin) % 1440) + 1440) % 1440)}</span>}
+                {fromMin(t)}
+              </span>
             ))}
           </div>
           {columns.map((c) => {
             const slots = draft?.[c.key] ?? new Set(c.slots)
+            const usual = c.usual ? new Set(c.usual) : null
+            const isExtra = (m: number) => !!usual && !usual.has(m)
             return (
               <div key={c.key} className="tg-col">
                 {edit
                   ? cells.map((m) => (
                       <div
                         key={m}
-                        className={'cell' + (slots.has(m) ? ' on' : '') + (isPast(c, m) ? ' past' : '')}
+                        className={'cell' + (slots.has(m) ? ' on' + (isExtra(m) ? ' extra' : '') : '') + (isPast(c, m) ? ' past' : '')}
                         data-key={c.key}
                         data-m={m}
                       />
                     ))
-                  : toWindows(slots).map(([s, e]) => (
-                      <div key={s} className="band" style={{ top: (s - lo) * PPM, height: (e - s) * PPM }} />
-                    ))}
+                  : [
+                      ...toWindows([...slots].filter((m) => !isExtra(m))).map(([s, e]) => (
+                        <div key={`u${s}`} className="band" style={{ top: (s - lo) * PPM, height: (e - s) * PPM }} />
+                      )),
+                      ...toWindows([...slots].filter(isExtra)).map(([s, e]) => (
+                        <div key={`x${s}`} className="band extra" style={{ top: (s - lo) * PPM, height: (e - s) * PPM }} />
+                      )),
+                    ]}
                 {(c.events ?? []).map((ev) => (
                   <button
                     key={ev.id}

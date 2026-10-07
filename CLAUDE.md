@@ -137,7 +137,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 
 **Zeitzonen** (Mats ist in Europa, die Familien in Hongkong)
 - **Heimatzeit von Mats:** `Europe/Berlin` (mit Sommer-/Winterzeit), gespeichert in `settings.timezone`, nie hart im Code verteilt. Standardzeiten, Tagesanpassungen und das 30-Min-Raster gelten in dieser Zeitzone.
-- **Admin-Ansicht:** zeigt immer die Heimatzeit aus `settings.timezone`, egal wo Mats' Gerät gerade ist.
+- **Admin-Ansicht:** zeigt immer die Heimatzeit aus `settings.timezone`, egal wo Mats' Gerät gerade ist. In allen Zeitrastern steht links daneben eine zweite Zeitspalte in anderer Farbe (`settings.second_timezone`, Standard Hongkong).
 - **Familien-Ansicht:** zeigt alle Zeiten in der **Zeitzone des Geräts** (Browser, `Intl.DateTimeFormat().resolvedOptions().timeZone`). Tage werden nach dem Ortsdatum der Familie gruppiert (ein Abendtermin bei Mats kann bei der Familie am nächsten Morgen liegen). Kleiner Hinweis in der Ansicht: „Alle Zeiten in deiner Ortszeit (Hongkong)“.
 - **Serien** sind an **Mats' Uhrzeit** gebunden: jede Woche gleiche Uhrzeit in `settings.timezone`. Für Familien in Hongkong verschiebt sich der Termin bei der europäischen Zeitumstellung um 1 Stunde – das muss im Buchungs-Pop-up und in der Serien-Vorschau sichtbar sein (jede Vorschau-Zeit in Ortszeit der Familie anzeigen).
 - Server und Datenbank rechnen nur mit `timestamptz` (absolute Zeitpunkte). Umrechnung in Ortszeit passiert erst bei der Anzeige bzw. beim E-Mail-Text.
@@ -179,7 +179,8 @@ settings (
   cancel_hours int not null default 24 check (cancel_hours in (12,24,48)),
   timezone text not null default 'Europe/Berlin',   -- Heimatzeit von Mats
   ics_token text not null,    -- zufälliger geheimer Token für den Kalender-Link
-  admin_email text not null
+  admin_email text not null,
+  second_timezone text not null default 'Asia/Hong_Kong'  -- zweite Zeitspalte in Mats' Rastern
 )
 
 -- Standardzeiten: Fenster pro Wochentag (0 = Sonntag … 6 = Samstag)
@@ -293,7 +294,7 @@ Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`)
 - Wochenansicht als Zeitraster (Mo–So), freie Zeiten hellgrün hinterlegt, Termine als Blöcke in der Schülerfarbe mit Vorname, Uhrzeit, „bezahlt/offen“. Rote Linie für „jetzt“. Monatsansicht (Tipp auf Tag → Woche).
 - Zeile „Diese Woche: 4,5 Std. gebucht · HK$ 1.300“.
 - Tipp auf Termin → Details: Familie, Zeit, Dauer, Betrag, Serie, Status; Schalter „Bezahlt“; „Termin absagen“, „Kurzfristige Absage (wird berechnet)“, „Serie ab diesem Termin beenden“, bei `late`: „Doch nicht berechnen“.
-- **„Zeiten bearbeiten“:** Raster von 07:00–22:00 in 30-Min-Zellen. Tippen oder Ziehen gibt frei bzw. blockiert (erste Zelle bestimmt die Richtung). Vergangene Zellen gesperrt. Tipp auf Tageskopf → „Ganzen Tag blockieren“ / „Auf Standardzeiten zurücksetzen“. Angepasste Tage sind markiert. Speichern nach jedem Loslassen.
+- **„Zeiten bearbeiten“:** Raster von 05:00–22:00 in 30-Min-Zellen. Tippen oder Ziehen gibt frei bzw. blockiert (erste Zelle bestimmt die Richtung). Vergangene Zellen gesperrt. Tipp auf Tageskopf → „Ganzen Tag blockieren“ / „Auf Standardzeiten zurücksetzen“. Angepasste Tage sind markiert. Speichern nach jedem Loslassen.
 - **„+ Termin eintragen“:** Familie, Datum, Dauer, Beginn (nur freie Zeiten) → nutzt `book_lessons` mit `p_family_id`.
 - Karte „Apple Kalender“ mit Abo-Link (siehe 11) und Knopf „Link neu erzeugen“.
 

@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import { toSlots, toWindows, weekdayOf, type Window } from '../lib/time'
 
-export type Settings = { timezone: string; cancel_hours: number }
+export type Settings = { timezone: string; second_timezone: string; cancel_hours: number }
 
 export function useSettings() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [error, setError] = useState(false)
 
   const load = useCallback(async () => {
-    const { data, error } = await supabase.from('settings').select('timezone, cancel_hours').maybeSingle()
+    const { data, error } = await supabase.from('settings').select('timezone, second_timezone, cancel_hours').maybeSingle()
     setError(!!error || !data)
     if (data) setSettings(data as Settings)
   }, [])

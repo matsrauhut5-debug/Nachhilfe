@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
-import { WD_LONG, WD_SHORT, WEEK_ORDER, tzName } from '../lib/time'
+import { WD_LONG, WD_SHORT, WEEK_ORDER, fmtOffset, tzName, tzOffsetMin, tzShort } from '../lib/time'
 import { Modal, useToast } from '../lib/ui'
 import TimeGrid from './TimeGrid'
 import { useAvailability, type Settings } from './availability'
@@ -9,6 +9,7 @@ export default function UsualHoursTab({ settings, onSettings }: { settings: Sett
   const toast = useToast()
   const { template, saveTemplateDay, error, reload } = useAvailability()
   const [menuDay, setMenuDay] = useState<number | null>(null)
+  const [edit, setEdit] = useState(false)
 
   if (error) {
     return (
@@ -18,6 +19,8 @@ export default function UsualHoursTab({ settings, onSettings }: { settings: Sett
     )
   }
   if (!template) return <p className="muted">Loading …</p>
+
+  const offset = tzOffsetMin(new Date(), settings.timezone, settings.second_timezone)
 
   async function commit(changes: Record<string, number[]>) {
     const results = await Promise.all(Object.entries(changes).map(([wd, slots]) => saveTemplateDay(Number(wd), slots)))
@@ -38,22 +41,35 @@ export default function UsualHoursTab({ settings, onSettings }: { settings: Sett
 
   return (
     <>
-      <div className="edithint">
-        <p>
-          Your normal week. These hours apply automatically every week. Tap or drag to open or block times. You change single weeks in
-          the calendar with “Edit hours”. All times are {tzName(settings.timezone)} time.
-        </p>
-      </div>
+      {edit ? (
+        <div className="edithint">
+          <p>Tap or drag to open or block times. Tap a weekday at the top to clear it. Changes are saved right away.</p>
+          <button className="btn primary sm" onClick={() => setEdit(false)}>Done</button>
+        </div>
+      ) : (
+        <div className="toolbar">
+          <p className="muted small" style={{ margin: 0, flex: 1, minWidth: '14em' }}>
+            Your normal week. These hours apply automatically every week. You change single weeks in the calendar.
+          </p>
+          <button className="btn sm" onClick={() => setEdit(true)}>Edit</button>
+        </div>
+      )}
       <TimeGrid
-        edit
+        edit={edit}
         onCommit={commit}
+        mainLabel={tzShort(settings.timezone)}
+        second={{ label: tzShort(settings.second_timezone), offsetMin: offset }}
         columns={WEEK_ORDER.map((wd) => ({
           key: String(wd),
           head: <div className="dn">{WD_SHORT[wd]}</div>,
-          onHeadClick: () => setMenuDay(wd),
+          onHeadClick: edit ? () => setMenuDay(wd) : undefined,
           slots: template[wd],
         }))}
       />
+      <p className="tznote">
+        {tzName(settings.timezone)} time, with <b>{tzName(settings.second_timezone)} time</b> next to it ({fmtOffset(offset)} today). The
+        difference changes by 1 hour when Germany switches between summer and winter time.
+      </p>
       <div className="card panel" style={{ marginTop: 16 }}>
         <h3>Cancellations</h3>
         <p className="muted small">Until when can families cancel for free by themselves?</p>
