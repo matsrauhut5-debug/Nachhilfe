@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import UserMenu from '../auth/UserMenu'
 
 const TABS = [
   ['cal', 'Kalender'],
@@ -15,6 +16,7 @@ export default function AdminPage() {
 
   return (
     <>
+      <UserMenu />
       <header className="head">
         <h1>Übersicht</h1>
         <p>Termine, deine Zeiten, Preise und Zahlungen an einem Ort.</p>

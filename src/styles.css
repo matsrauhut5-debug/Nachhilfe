@@ -166,7 +166,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .avday{font-weight:600;padding-top:7px}
 .wins{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .win{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-input[type=time],input[type=date],input[type=number],input[type=text],input[type=email],select.inp{
+input[type=time],input[type=date],input[type=number],input[type=text],input[type=email],input[type=password],select.inp{
   background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:7px 9px;min-width:0}
 input[type=number]{width:5.2em}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
@@ -284,3 +284,7 @@ table.pay th.num{text-align:right}
 .placeholder{padding:22px;text-align:center;color:var(--muted)}
 .foot{margin-top:40px;text-align:center;font-size:.8rem;color:var(--muted)}
 .foot a{color:inherit}
+.authcard .btn{text-decoration:none;text-align:center}
+.formerror{margin:0;padding:9px 12px;border-radius:10px;background:var(--danger-soft);color:var(--danger);font-size:.88rem;font-weight:600}
+.usermenu{display:flex;justify-content:flex-end;gap:4px;margin:-6px -8px 6px 0}
+.usermenu .btn{text-decoration:none}
