@@ -19,7 +19,10 @@ type AuthState = {
   profile: Profile | null
   // Error from the invite/reset link, if it was invalid
   linkError: string | null
+  // Signed in via an invite/reset link in this visit (no password chosen yet)
+  fromEmailLink: boolean
   signOut: () => Promise<void>
+  passwordChosen: () => void
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -31,17 +34,20 @@ export function useAuth() {
 }
 
 // Links from invite and password emails: ?token_hash=…&type=invite|recovery#/set-password
-async function consumeEmailLink(): Promise<string | null> {
+async function consumeEmailLink(): Promise<{ used: boolean; error: string | null }> {
   const params = new URLSearchParams(window.location.search)
   const tokenHash = params.get('token_hash')
   const type = params.get('type') as EmailOtpType | null
-  if (!tokenHash || !type) return null
+  if (!tokenHash || !type) return { used: false, error: null }
 
   // Remove the token from the address bar, keep the hash route
   window.history.replaceState(null, '', window.location.pathname + window.location.hash)
 
   const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
-  return error ? 'This link has expired or was already used. Just request a new one.' : null
+  return {
+    used: !error,
+    error: error ? 'This link has expired or was already used. Just request a new one.' : null,
+  }
 }
 
 async function loadProfile(userId: string): Promise<Profile | null> {
@@ -58,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [linkError, setLinkError] = useState<string | null>(null)
+  const [fromEmailLink, setFromEmailLink] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -71,9 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     async function init() {
-      const err = await consumeEmailLink()
+      const link = await consumeEmailLink()
       if (cancelled) return
-      setLinkError(err)
+      setLinkError(link.error)
+      setFromEmailLink(link.used)
       const { data } = await supabase.auth.getSession()
       await apply(data.session)
     }
@@ -96,11 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function signOut() {
+    setFromEmailLink(false)
     await supabase.auth.signOut()
   }
 
+  function passwordChosen() {
+    setFromEmailLink(false)
+  }
+
   return (
-    <AuthContext.Provider value={{ loading, session, profile, linkError, signOut }}>
+    <AuthContext.Provider value={{ loading, session, profile, linkError, fromEmailLink, signOut, passwordChosen }}>
       {children}
     </AuthContext.Provider>
   )

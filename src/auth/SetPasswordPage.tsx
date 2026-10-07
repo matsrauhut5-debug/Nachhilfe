@@ -6,7 +6,7 @@ import { supabase } from '../supabase'
 const MIN_LENGTH = 8
 
 export default function SetPasswordPage() {
-  const { loading, session, profile, linkError } = useAuth()
+  const { loading, session, profile, linkError, fromEmailLink, signOut, passwordChosen } = useAuth()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [repeat, setRepeat] = useState('')
@@ -27,6 +27,11 @@ export default function SetPasswordPage() {
     )
   }
 
+  async function backToSignIn() {
+    await signOut()
+    navigate('/', { replace: true })
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -45,6 +50,7 @@ export default function SetPasswordPage() {
       )
       return
     }
+    passwordChosen()
     navigate(homeFor(profile), { replace: true })
   }
 
@@ -65,7 +71,12 @@ export default function SetPasswordPage() {
         <button className="btn primary" type="submit" disabled={busy}>
           {busy ? 'One moment …' : 'Save password'}
         </button>
-        <Link className="btn ghost" to={homeFor(profile)}>Cancel</Link>
+        {fromEmailLink ? (
+          // Came from an email link: leaving must not keep them signed in without a password
+          <button className="btn ghost" type="button" onClick={backToSignIn}>Back to sign in</button>
+        ) : (
+          <Link className="btn ghost" to={homeFor(profile)}>Cancel</Link>
+        )}
       </form>
     </div>
   )
