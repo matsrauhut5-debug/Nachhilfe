@@ -160,3 +160,13 @@ export function fmtOffset(min: number) {
   const h = Math.abs(min) / 60
   return `${min < 0 ? '−' : '+'}${Number.isInteger(h) ? h : h.toFixed(1)} h`
 }
+
+// Time zone of this device, e.g. "Asia/Hong_Kong"
+export function deviceTz() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+}
+
+// "Hong Kong", "Berlin" – city part of a time zone name
+export function tzCity(tz: string) {
+  return tz.split('/').pop()!.replace(/_/g, ' ')
+}

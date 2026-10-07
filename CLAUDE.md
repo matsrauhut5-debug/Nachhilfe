@@ -48,6 +48,8 @@ Mats gibt Nachhilfe. Familien (Eltern + Schüler, **ein gemeinsames Konto pro Fa
 
 Nicht übernehmen: die gelbe Demo-Leiste (Rollen-Umschalter) und die Beispieldaten – die ersetzt der echte Login bzw. die Datenbank.
 
+**Update (Mats, Phase 6):** Der Prototyp ist ein Ausgangspunkt, **nicht fix**. Claude darf Layout und Grafik verbessern, wenn es übersichtlicher oder schöner wird (z. B. „Students & prices“ als moderne Tabelle statt Karten, geplant direkt nach Phase 6). Größere Umbauten kurz vorher mit Mats abstimmen.
+
 Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette aus dem Prototyp), mobil zuerst (die meisten Familien nutzen das Handy).
 
 ---
@@ -242,8 +244,9 @@ notifications_outbox (
 
 - **`get_free_starts(p_from timestamptz, p_to timestamptz)`** → Liste `(starts_at timestamptz, max_duration int)`.
   Berechnet freie Startzeiten aus Standardzeiten bzw. Tagesanpassung (in `settings.timezone`) minus gebuchte Termine (Status `booked`), nur Zukunft, 30-Min-Raster. `max_duration` = längste der Dauern 60/90/120, die ab diesem Start passt. Gibt **absolute Zeitpunkte** zurück; das Frontend rechnet in die Ortszeit um. Gibt **keine** fremden Namen oder Buchungen preis. Zeitraum max. 12 Wochen.
-- **`book_lessons(p_starts_at timestamptz, p_duration int, p_repeat_until date default null)`**
+- **`book_lessons(p_starts_at timestamptz, p_duration int, p_repeat_until timestamptz default null, p_family_id uuid default null)`** – `p_repeat_until` ist ein exklusives Ende (Mitternacht nach dem gewählten Enddatum in der Zeitzone der Familie).
   Nur für aktive Familien (und Admin mit zusätzlichem Parameter `p_family_id`). Serientermine = gleiche Uhrzeit in `settings.timezone`, jeweils +7 Tage (nicht +168 Stunden). Prüft Dauer, Verfügbarkeit und Zukunft für jeden Termin, erzeugt bei mehr als einem Termin eine `series_id`, kopiert den Preis aus dem Profil. Nicht freie Wochen werden übersprungen. Rückgabe: gebuchte und übersprungene Daten. Legt **einen** Eintrag in `notifications_outbox` an. Der Exclusion-Constraint ist die letzte Sicherung gegen gleichzeitige Doppelbuchungen – bei Konflikt verständliche Fehlermeldung („Diese Zeit wurde gerade vergeben“).
+- **`preview_series(p_starts_at, p_duration, p_repeat_until)`** → `(starts_at, free)` für die Serien-Vorschau (auch über 12 Wochen hinaus). **`booking_info()`** → `{cancel_hours}` für Familien.
 - **`cancel_booking(p_id uuid)`**
   Familie: nur eigene, nur Status `booked`, nur wenn `starts_at - now() > cancel_hours`. Admin: immer. Setzt `cancelled`, `cancelled_at`, `cancelled_by`, legt Outbox-Eintrag an.
 - **`end_series(p_series_id uuid, p_from timestamptz default now())`**
