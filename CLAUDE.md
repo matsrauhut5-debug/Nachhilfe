@@ -248,6 +248,7 @@ notifications_outbox (
 - **`end_series(p_series_id uuid, p_from timestamptz default now())`**
   Sagt alle künftigen Termine der Serie ab, die außerhalb der Frist liegen (Admin: alle ab `p_from`). Gibt Anzahl abgesagter und bestehen gebliebener Termine zurück. Ein Outbox-Eintrag.
 - **`mark_late_cancel(p_id uuid)`** (nur Admin): Status `late`.
+- **`set_template_day(p_weekday, p_windows)`** / **`set_override(p_date, p_windows)`** (nur Admin, `security invoker`): speichern Standardzeiten bzw. Tagesanpassung atomar, fassen Fenster zusammen; `set_override` mit `null` setzt zurück und löscht Anpassungen, die dem Standard gleichen.
 - Admin-Aktionen ohne Sonderlogik (Preise, Standardzeiten, Tagesanpassungen, `paid` umschalten, Einstellungen) laufen direkt über Tabellen-Updates mit RLS.
 
 ### 8.2 Edge Functions
