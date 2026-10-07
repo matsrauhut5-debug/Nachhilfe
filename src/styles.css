@@ -288,3 +288,6 @@ table.pay th.num{text-align:right}
 .formerror{margin:0;padding:9px 12px;border-radius:10px;background:var(--danger-soft);color:var(--danger);font-size:.88rem;font-weight:600}
 .usermenu{display:flex;justify-content:flex-end;gap:4px;margin:-6px -8px 6px 0}
 .usermenu .btn{text-decoration:none}
+.addform{display:flex;flex-direction:column;gap:14px}
+.addform .field input,.addform .field select{width:100%}
+.scard .f select{width:100%}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import UserMenu from '../auth/UserMenu'
+import StudentsTab from './StudentsTab'
 
 const TABS = [
   ['cal', 'Calendar'],
@@ -34,7 +35,11 @@ export default function AdminPage() {
           </button>
         ))}
       </nav>
-      <div className="card placeholder">“{label}” will be built in one of the next phases.</div>
+      {tab === 'stud' ? (
+        <StudentsTab />
+      ) : (
+        <div className="card placeholder">“{label}” will be built in one of the next phases.</div>
+      )}
     </>
   )
 }
