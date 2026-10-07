@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { homeFor, useAuth } from './AuthProvider'
 import { supabase } from '../supabase'
+import PasswordInput from './PasswordInput'
 import { callFunction } from '../lib/functions'
 
 const DEACTIVATED = 'Your account has been deactivated. Please reach out to Mats.'
@@ -67,7 +68,7 @@ export default function LoginPage() {
         </label>
         <label className="field">
           Password
-          <input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         {error && <p className="formerror">{error}</p>}
         <button className="btn primary" type="submit" disabled={busy}>

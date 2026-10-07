@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { homeFor, useAuth } from './AuthProvider'
 import { supabase } from '../supabase'
+import PasswordInput from './PasswordInput'
 
 const MIN_LENGTH = 8
 
@@ -61,11 +62,11 @@ export default function SetPasswordPage() {
       <form onSubmit={handleSubmit}>
         <label className="field">
           New password
-          <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <label className="field">
           Repeat password
-          <input type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
+          <PasswordInput autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
         </label>
         {error && <p className="formerror">{error}</p>}
         <button className="btn primary" type="submit" disabled={busy}>

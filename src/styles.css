@@ -291,3 +291,8 @@ table.pay th.num{text-align:right}
 .addform{display:flex;flex-direction:column;gap:14px}
 .addform .field input,.addform .field select{width:100%}
 .scard .f select{width:100%}
+.pwfield{position:relative;display:block}
+.pwfield input{width:100%;padding-right:44px !important}
+.pweye{position:absolute;top:50%;right:4px;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;color:var(--muted);border-radius:8px;display:grid;place-items:center}
+.pweye:hover{color:var(--ink)}
+.pweye[aria-pressed="true"]{color:var(--accent-ink)}
