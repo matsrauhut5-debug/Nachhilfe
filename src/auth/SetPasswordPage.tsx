@@ -13,15 +13,15 @@ export default function SetPasswordPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (loading) return <p className="muted">Wird geladen …</p>
+  if (loading) return <p className="muted">Loading …</p>
 
   if (!session) {
     return (
       <div className="card authcard">
-        <h1>Link ungültig</h1>
-        <p className="muted">{linkError ?? 'Bitte öffne den Link aus deiner E-Mail noch einmal oder fordere einen neuen an.'}</p>
-        <Link className="btn primary" to="/passwort-vergessen" style={{ display: 'block', textAlign: 'center', marginTop: 18 }}>
-          Neuen Link anfordern
+        <h1>Invalid link</h1>
+        <p className="muted">{linkError ?? 'Please open the link from your email again, or request a new one.'}</p>
+        <Link className="btn primary" to="/forgot-password" style={{ display: 'block', textAlign: 'center', marginTop: 18 }}>
+          Request a new link
         </Link>
       </div>
     )
@@ -30,18 +30,18 @@ export default function SetPasswordPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
-    if (password.length < MIN_LENGTH) return setError(`Das Passwort braucht mindestens ${MIN_LENGTH} Zeichen.`)
-    if (password !== repeat) return setError('Die beiden Passwörter sind nicht gleich.')
+    if (password.length < MIN_LENGTH) return setError(`Your password needs at least ${MIN_LENGTH} characters.`)
+    if (password !== repeat) return setError('The two passwords don\'t match.')
     setBusy(true)
     const { error } = await supabase.auth.updateUser({ password })
     setBusy(false)
     if (error) {
       setError(
         error.code === 'same_password'
-          ? 'Das ist dein bisheriges Passwort. Bitte wähle ein neues.'
+          ? 'That is your current password. Please choose a new one.'
           : error.code === 'weak_password'
-            ? 'Dieses Passwort ist zu schwach. Bitte wähle ein längeres.'
-            : 'Das hat nicht geklappt. Bitte versuch es noch einmal.',
+            ? 'This password is too weak. Please choose a longer one.'
+            : 'That didn\'t work. Please try again.',
       )
       return
     }
@@ -50,22 +50,22 @@ export default function SetPasswordPage() {
 
   return (
     <div className="card authcard">
-      <h1>Passwort festlegen</h1>
-      <p className="muted">Für {session.user.email}. Mindestens {MIN_LENGTH} Zeichen.</p>
+      <h1>Set password</h1>
+      <p className="muted">For {session.user.email}. At least {MIN_LENGTH} characters.</p>
       <form onSubmit={handleSubmit}>
         <label className="field">
-          Neues Passwort
+          New password
           <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <label className="field">
-          Noch einmal
+          Repeat password
           <input type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
         </label>
         {error && <p className="formerror">{error}</p>}
         <button className="btn primary" type="submit" disabled={busy}>
-          {busy ? 'Einen Moment …' : 'Passwort speichern'}
+          {busy ? 'One moment …' : 'Save password'}
         </button>
-        <Link className="btn ghost" to={homeFor(profile)}>Abbrechen</Link>
+        <Link className="btn ghost" to={homeFor(profile)}>Cancel</Link>
       </form>
     </div>
   )

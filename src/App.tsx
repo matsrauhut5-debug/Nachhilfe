@@ -13,9 +13,9 @@ export default function App() {
       <div className="wrap">
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="/passwort-vergessen" element={<ForgotPasswordPage />} />
-          <Route path="/passwort-setzen" element={<SetPasswordPage />} />
-          <Route path="/buchen" element={<RequireRole role="family"><FamilyPage /></RequireRole>} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/set-password" element={<SetPasswordPage />} />
+          <Route path="/book" element={<RequireRole role="family"><FamilyPage /></RequireRole>} />
           <Route path="/admin" element={<RequireRole role="admin"><AdminPage /></RequireRole>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

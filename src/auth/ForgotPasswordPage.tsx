@@ -15,39 +15,38 @@ export default function ForgotPasswordPage() {
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
     setBusy(false)
     if (error && error.status === 429) {
-      setError('Du hast gerade schon einen Link angefordert. Bitte warte eine Minute.')
+      setError('You just requested a link. Please wait a minute.')
     } else if (error) {
-      setError('Das hat nicht geklappt. Prüfe deine Internetverbindung und versuch es noch einmal.')
+      setError('That didn\'t work. Check your internet connection and try again.')
     } else {
-      // Aus Datenschutzgründen immer dieselbe Antwort, egal ob es die Adresse gibt
+      // For privacy, always the same answer whether or not the address exists
       setSent(true)
     }
   }
 
   return (
     <div className="card authcard">
-      <h1>Passwort vergessen</h1>
+      <h1>Forgot password</h1>
       {sent ? (
         <>
           <p className="muted">
-            Falls ein Konto mit dieser E-Mail existiert, ist jetzt ein Link zum Zurücksetzen unterwegs. Schau auch im
-            Spam-Ordner nach.
+            If an account exists for this email, a reset link is on its way. Please also check your spam folder.
           </p>
-          <Link className="btn" to="/" style={{ display: 'block', textAlign: 'center', marginTop: 18 }}>Zur Anmeldung</Link>
+          <Link className="btn" to="/" style={{ display: 'block', textAlign: 'center', marginTop: 18 }}>Back to sign in</Link>
         </>
       ) : (
         <>
-          <p className="muted">Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link, mit dem du ein neues Passwort festlegst.</p>
+          <p className="muted">Enter your email address. We'll send you a link to set a new password.</p>
           <form onSubmit={handleSubmit}>
             <label className="field">
-              E-Mail
+              Email
               <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </label>
             {error && <p className="formerror">{error}</p>}
             <button className="btn primary" type="submit" disabled={busy}>
-              {busy ? 'Einen Moment …' : 'Link schicken'}
+              {busy ? 'One moment …' : 'Send link'}
             </button>
-            <Link className="btn ghost" to="/">Zurück zur Anmeldung</Link>
+            <Link className="btn ghost" to="/">Back to sign in</Link>
           </form>
         </>
       )}

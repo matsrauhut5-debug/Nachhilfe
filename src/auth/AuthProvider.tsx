@@ -17,7 +17,7 @@ type AuthState = {
   loading: boolean
   session: Session | null
   profile: Profile | null
-  // Fehlermeldung aus dem Einladungs-/Reset-Link, falls der ungültig war
+  // Error from the invite/reset link, if it was invalid
   linkError: string | null
   signOut: () => Promise<void>
 }
@@ -26,22 +26,22 @@ const AuthContext = createContext<AuthState | null>(null)
 
 export function useAuth() {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth außerhalb von AuthProvider')
+  if (!ctx) throw new Error('useAuth used outside AuthProvider')
   return ctx
 }
 
-// Links aus Einladungs- und Passwort-Mails: ?token_hash=…&type=invite|recovery#/passwort-setzen
+// Links from invite and password emails: ?token_hash=…&type=invite|recovery#/set-password
 async function consumeEmailLink(): Promise<string | null> {
   const params = new URLSearchParams(window.location.search)
   const tokenHash = params.get('token_hash')
   const type = params.get('type') as EmailOtpType | null
   if (!tokenHash || !type) return null
 
-  // Token aus der Adresszeile entfernen, Hash-Route behalten
+  // Remove the token from the address bar, keep the hash route
   window.history.replaceState(null, '', window.location.pathname + window.location.hash)
 
   const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type })
-  return error ? 'Der Link ist abgelaufen oder wurde schon benutzt. Fordere einfach einen neuen an.' : null
+  return error ? 'This link has expired or was already used. Just request a new one.' : null
 }
 
 async function loadProfile(userId: string): Promise<Profile | null> {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init()
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
-      // Profil nicht bei jedem Token-Refresh neu laden; Aufruf entkoppelt laut Supabase-Doku
+      // Don't reload the profile on every token refresh; deferred call as recommended by the Supabase docs
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
         setTimeout(() => apply(next), 0)
       } else {
@@ -107,5 +107,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function homeFor(profile: Profile | null) {
-  return profile?.role === 'admin' ? '/admin' : '/buchen'
+  return profile?.role === 'admin' ? '/admin' : '/book'
 }

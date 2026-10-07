@@ -2,10 +2,10 @@ import { useState } from 'react'
 import UserMenu from '../auth/UserMenu'
 
 const TABS = [
-  ['cal', 'Kalender'],
-  ['tpl', 'Standardzeiten'],
-  ['stud', 'Schüler & Preise'],
-  ['pay', 'Zahlungen'],
+  ['cal', 'Calendar'],
+  ['tpl', 'Usual hours'],
+  ['stud', 'Students & prices'],
+  ['pay', 'Payments'],
 ] as const
 
 type Tab = (typeof TABS)[number][0]
@@ -18,8 +18,8 @@ export default function AdminPage() {
     <>
       <UserMenu />
       <header className="head">
-        <h1>Übersicht</h1>
-        <p>Termine, deine Zeiten, Preise und Zahlungen an einem Ort.</p>
+        <h1>Overview</h1>
+        <p>Lessons, your hours, prices and payments in one place.</p>
       </header>
       <nav className="tabs" role="tablist">
         {TABS.map(([id, text]) => (
@@ -34,7 +34,7 @@ export default function AdminPage() {
           </button>
         ))}
       </nav>
-      <div className="card placeholder">„{label}“ wird in einer der nächsten Phasen gebaut.</div>
+      <div className="card placeholder">“{label}” will be built in one of the next phases.</div>
     </>
   )
 }

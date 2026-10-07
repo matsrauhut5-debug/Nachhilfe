@@ -1,4 +1,4 @@
-/* Design übernommen aus design/prototyp.html (ohne Demo-Leiste) */
+/* Design taken from design/prototyp.html (without the demo bar) */
 :root{
   color-scheme: light dark;
   box-sizing:border-box;
@@ -65,7 +65,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .iconbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--card);font-size:1.15rem;line-height:1;display:inline-grid;place-items:center}
 .iconbtn:disabled{opacity:.35;cursor:not-allowed}
 
-/* Kopf */
+/* Header */
 .head{margin-bottom:22px}
 .head h1{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:clamp(1.9rem,6vw,2.8rem);line-height:1.05;letter-spacing:-.01em;margin:0 0 6px}
 .head p{margin:0;color:var(--muted);max-width:52ch}
@@ -78,7 +78,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .toolbar .wklabel{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.12rem;min-width:9.5em;text-align:center}
 .toolbar .grow{flex:1}
 
-/* Schüler-Kalender */
+/* Family calendar */
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .sday{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 12px 14px;box-shadow:var(--shadow);min-width:0}
 .sday.today{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
@@ -95,7 +95,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .mychip span{color:var(--gold);font-size:.78rem;font-weight:600}
 .none{color:var(--muted);font-size:.86rem}
 
-/* Listen */
+/* Lists */
 .sect{margin-top:34px}
 .sect h2{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.3rem;margin:0 0 12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
@@ -116,7 +116,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .tabs button{border:0;background:transparent;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
 
-/* Zeitraster */
+/* Time grid */
 .tg-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:var(--shadow)}
 .tg{min-width:760px}
 .tg-head,.tg-body{display:grid;grid-template-columns:52px repeat(7,minmax(0,1fr))}
@@ -142,7 +142,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .nowline{position:absolute;left:0;right:0;height:2px;background:var(--danger);z-index:2}
 .nowline::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
 
-/* Monat */
+/* Month */
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
 .mgrid .mh{padding:8px;font-size:.8rem;font-weight:700;color:var(--muted);text-align:center;border-bottom:1px solid var(--line)}
 .mcell{min-height:92px;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:6px;display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -157,7 +157,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .me.late{text-decoration:line-through;opacity:.6}
 @media (max-width:640px){.mcell{min-height:64px}.me span{display:none}}
 
-/* Formkarten */
+/* Form cards */
 .panel{padding:18px;margin-bottom:16px}
 .panel h3{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.15rem;margin:0 0 4px}
 .panel > p{margin:0 0 14px}
@@ -175,7 +175,7 @@ input[type=number]{width:5.2em}
 .blockform{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 @media (max-width:560px){.avrow{grid-template-columns:1fr;gap:4px}.avday{padding-top:0}}
 
-/* Schülerkarten */
+/* Student cards */
 .sgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .scard{padding:16px;border-top:4px solid var(--c)}
 .scard .nm{font-family:"Fraunces",Georgia,serif;font-size:1.15rem;font-weight:500;width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:4px 0;margin-bottom:10px}
@@ -191,7 +191,7 @@ input[type=number]{width:5.2em}
 .sstats{font-size:.82rem;color:var(--muted);margin:0 0 12px}
 .srow{display:flex;gap:8px;flex-wrap:wrap}
 
-/* Zahlungen */
+/* Payments */
 .sums{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
 .sum{padding:14px 16px}
 .sum .v{font-family:"Fraunces",Georgia,serif;font-size:1.6rem;font-weight:500;line-height:1.1}
@@ -249,7 +249,7 @@ table.pay th.num{text-align:right}
 .infocard p{margin:0}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;color:var(--muted);margin-top:10px}
 .legend span{display:inline-flex;align-items:center}
-/* v3: Bearbeiten-Modus */
+/* Edit mode */
 .cell{height:var(--cell);border-bottom:1px solid transparent;cursor:pointer}
 .cell.on{background:color-mix(in srgb,var(--accent) 24%,transparent);border-bottom-color:color-mix(in srgb,var(--accent) 12%,transparent)}
 .cell:hover{box-shadow:inset 0 0 0 1px var(--accent)}
@@ -275,7 +275,7 @@ table.pay th.num{text-align:right}
 .durpick button:disabled{opacity:.4;cursor:not-allowed}
 .fieldlbl{font-weight:600;font-size:.9rem;margin:0 0 8px}
 
-/* Login & Platzhalter */
+/* Login & placeholders */
 .authcard{max-width:400px;margin:8vh auto 0;padding:24px}
 .authcard h1{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:clamp(1.7rem,6vw,2.2rem);line-height:1.1;margin:0 0 6px}
 .authcard form{display:flex;flex-direction:column;gap:14px;margin-top:18px}

@@ -19,7 +19,8 @@ Dieses Dokument beschreibt vollständig, was gebaut werden soll, wie es aufgebau
 - **Kleine Schritte.** Arbeite Phase für Phase (Abschnitt 13). Jede Phase endet mit etwas, das Mats im Browser ausprobieren kann, und mit einer kurzen Testanleitung.
 - **Nichts Geheimes ins Repository.** Das Repository ist öffentlich. Service-Role-Key, Gmail-App-Passwort, Backup-Secret usw. gehören ausschließlich in Supabase-Secrets bzw. GitHub-Secrets. Nur `SUPABASE_URL` und der `anon`-Key dürfen im Frontend stehen (die sind absichtlich öffentlich; die Sicherheit kommt aus Row Level Security). Lege eine `.env.example` ohne echte Werte an und setze `.env` in `.gitignore`. Prüfe vor jedem Commit, dass keine Geheimnisse enthalten sind.
 - **Sicherheit liegt in der Datenbank, nicht in der Oberfläche.** Alles, was Familien nicht dürfen, muss per RLS bzw. in den Server-Funktionen verhindert werden – nicht nur durch ausgeblendete Knöpfe.
-- **Oberfläche auf Deutsch**, Code (Variablen, Tabellen, Funktionen) auf Englisch.
+- **Sprache (Entscheidung von Mats, Phase 3 – hat Vorrang vor allen anderen Angaben in diesem Dokument):** Die **gesamte Software ist auf Englisch** – Familien-Ansicht, Admin-Ansicht, Fehlermeldungen, E-Mails, Export-Spaltenköpfe, Routen. Deutsche Texte, Beispiele und Zahlenformate in diesem Dokument und im Prototyp sind sinngemäß ins Englische zu übertragen (z. B. „Termin buchen“ → „Book lesson“). Zahlen/Daten im englischen Format: `HK$ 1,300` bzw. `HK$ 420.50`, „Mon, 5 Oct“, 24-Stunden-Zeit. Code ebenfalls Englisch.
+- **Der Chat mit Mats bleibt auf Deutsch.**
 - **Einfachheit vor Features.** Keine zusätzlichen Bibliotheken, Einstellungen oder Funktionen, die hier nicht verlangt sind. Lieber nachfragen.
 - Nach jeder Phase: committen und pushen (Deploy läuft automatisch), dann Mats den Link zum Testen nennen.
 
@@ -110,7 +111,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 - **Keine Selbstregistrierung.** In Supabase Auth „Allow new users to sign up“ **deaktivieren**. Familien werden nur von Mats eingeladen.
 - **Admin-Konto:** Mats wird einmalig im Supabase-Dashboard angelegt; danach per SQL `role = 'admin'` gesetzt (Claude Code gibt Mats die genaue Anleitung).
 - **Login:** E-Mail + Passwort. Einladung per E-Mail → Link → „Passwort festlegen“-Seite. „Passwort vergessen“ über Supabase Reset-Mail.
-- **Eine App, eine Adresse.** Nach dem Login entscheidet die Rolle aus der Datenbank, welche Ansicht erscheint (`#/admin` oder `#/buchen`). Ruft eine Familie `#/admin` auf, wird sie umgeleitet – und bekommt ohnehin keine Daten, weil RLS alles blockiert.
+- **Eine App, eine Adresse.** Nach dem Login entscheidet die Rolle aus der Datenbank, welche Ansicht erscheint (`#/admin` oder `#/book`). Ruft eine Familie `#/admin` auf, wird sie umgeleitet – und bekommt ohnehin keine Daten, weil RLS alles blockiert.
 - Hilfsfunktion `is_admin()` (SQL, `security definer`, liest die Rolle des aktuellen Nutzers).
 - Empfehlung für Mats: starkes Passwort; optional Zwei-Faktor-Anmeldung später.
 
@@ -120,7 +121,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 
 | Regel | Wert |
 |---|---|
-| Währung | **HKD**, Anzeige `HK$ 1.300` bzw. `HK$ 420,50` (deutsches Zahlenformat) |
+| Währung | **HKD**, Anzeige `HK$ 1,300` bzw. `HK$ 420.50` (englisches Zahlenformat) |
 | Zeitzonen | Siehe **„Zeitzonen“** unten (in Phase 0 mit Mats geklärt) |
 | Dauer | nur **60, 90 oder 120 Minuten** |
 | Startzeiten | im **30-Minuten-Raster** (intern, keine Einstellung dafür) |
@@ -249,7 +250,7 @@ notifications_outbox (
 
 ### 8.2 Edge Functions
 
-- **`invite-family`** (nur Admin, prüft JWT + Rolle): legt Nutzer per `auth.admin.inviteUserByEmail` an (Weiterleitung auf `#/passwort-setzen`), erstellt die `profiles`-Zeile mit Namen, Preisen und automatisch vergebener Farbe. Auch „Einladung erneut senden“.
+- **`invite-family`** (nur Admin, prüft JWT + Rolle): legt Nutzer per `auth.admin.inviteUserByEmail` an (Weiterleitung auf `#/set-password`), erstellt die `profiles`-Zeile mit Namen, Preisen und automatisch vergebener Farbe. Auch „Einladung erneut senden“.
 - **`send-notification`**: wird per **Database Webhook** bei neuem Eintrag in `notifications_outbox` aufgerufen (Webhook mit geheimem Header absichern). Verschickt über Gmail-SMTP je eine E-Mail an die Familie und an Mats, setzt `sent_at` oder `error`.
 - **`calendar-feed`**: öffentlich erreichbar (JWT-Prüfung aus), aber nur mit korrektem `?token=`. Liefert `text/calendar` (iCalendar) mit allen Terminen mit Status `booked` von −30 bis +180 Tagen. Pro Termin: `UID` = Buchungs-ID, `SUMMARY` = „Nachhilfe: Mia Berger“, `DTSTART/DTEND` in UTC, `DESCRIPTION` mit Dauer, Betrag, Serie ja/nein. Kalenderkopf mit `X-WR-CALNAME:Nachhilfe`, `REFRESH-INTERVAL;VALUE=DURATION:PT15M`, `X-PUBLISHED-TTL:PT15M`. Abgesagte Termine verschwinden beim nächsten Abruf.
 - **`weekly-backup`**: nur mit geheimem Header aufrufbar. Exportiert `profiles`, `bookings`, `availability_*`, `settings` (ohne `ics_token`) als JSON + Buchungen als CSV und schickt sie als Anhang an Mats.
@@ -261,7 +262,7 @@ GitHub Secrets: `BACKUP_SECRET`, `SUPABASE_FUNCTIONS_URL`. GitHub Variables: `VI
 
 ---
 
-## 9. Ansicht für Familien (`#/buchen`)
+## 9. Ansicht für Familien (`#/book`)
 
 So schlicht wie im Prototyp:
 
@@ -324,7 +325,7 @@ Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`)
 
 Versand über Gmail-SMTP (App-Passwort; Voraussetzung: Zwei-Faktor-Anmeldung im Google-Konto). Absendername „Nachhilfe Mats“. **Alle E-Mail-Texte auf Englisch** (Wunsch von Mats, Phase 3), kurz, mit Datum, Uhrzeit, Dauer, Betrag in HK$ und Link zur App. Uhrzeiten für die Familie in `profiles.timezone`, für Mats in `settings.timezone`, jeweils mit Zeitzonen-Hinweis, z. B. „15:00 (Hong Kong time)“.
 
-**Auth-Mail-Links:** Einladungs- und Reset-Mails verlinken auf `{{ .SiteURL }}?token_hash={{ .TokenHash }}&type=invite|recovery#/passwort-setzen`; die App ruft damit `verifyOtp` auf. Grund: Der Standard-Link von Supabase legt Tokens in den `#`-Teil der Adresse und kollidiert mit dem HashRouter. Eigene Vorlagen erfordern eigenes SMTP (ist eingerichtet).
+**Auth-Mail-Links:** Einladungs- und Reset-Mails verlinken auf `{{ .SiteURL }}?token_hash={{ .TokenHash }}&type=invite|recovery#/set-password`; die App ruft damit `verifyOtp` auf. Grund: Der Standard-Link von Supabase legt Tokens in den `#`-Teil der Adresse und kollidiert mit dem HashRouter. Eigene Vorlagen erfordern eigenes SMTP (ist eingerichtet).
 
 | Anlass | An Familie | An Mats |
 |---|---|---|
@@ -367,7 +368,7 @@ Jede Phase: umsetzen → committen/pushen → Mats testet anhand der Checkliste 
 
 **Phase 4 – Schüler & Preise, Einladungen**
 - Tab „Schüler & Preise“, Edge Function `invite-family`, Gmail-SMTP in Supabase Auth.
-- ✅ Mats lädt eine Test-Familie (eigene zweite E-Mail-Adresse) ein; sie setzt ein Passwort und landet in `#/buchen`. Die Test-Familie kann `#/admin` nicht nutzen.
+- ✅ Mats lädt eine Test-Familie (eigene zweite E-Mail-Adresse) ein; sie setzt ein Passwort und landet in `#/book`. Die Test-Familie kann `#/admin` nicht nutzen.
 
 **Phase 5 – Zeiten**
 - Tab „Standardzeiten“ (Mal-Raster + Absagefrist), Kalender-Modus „Zeiten bearbeiten“ mit Tagesanpassungen.

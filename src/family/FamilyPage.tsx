@@ -5,10 +5,10 @@ export default function FamilyPage() {
     <>
       <UserMenu />
       <header className="head">
-        <h1>Nachhilfe bei Mats</h1>
-        <p>Tipp auf eine freie Uhrzeit, um einen Termin zu buchen.</p>
+        <h1>Tutoring with Mats</h1>
+        <p>Tap a free time to book a lesson.</p>
       </header>
-      <div className="card placeholder">Hier erscheinen bald die freien Termine.</div>
+      <div className="card placeholder">Free times will appear here soon.</div>
     </>
   )
 }
