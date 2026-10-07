@@ -322,16 +322,18 @@ Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`)
 
 ## 12. E-Mails
 
-Versand über Gmail-SMTP (App-Passwort; Voraussetzung: Zwei-Faktor-Anmeldung im Google-Konto). Absendername „Nachhilfe Mats“. Alle Texte auf Deutsch, kurz, mit Datum, Uhrzeit, Dauer, Betrag in HK$ und Link zur App. Uhrzeiten für die Familie in `profiles.timezone`, für Mats in `settings.timezone`, jeweils mit Zeitzonen-Hinweis.
+Versand über Gmail-SMTP (App-Passwort; Voraussetzung: Zwei-Faktor-Anmeldung im Google-Konto). Absendername „Nachhilfe Mats“. **Alle E-Mail-Texte auf Englisch** (Wunsch von Mats, Phase 3), kurz, mit Datum, Uhrzeit, Dauer, Betrag in HK$ und Link zur App. Uhrzeiten für die Familie in `profiles.timezone`, für Mats in `settings.timezone`, jeweils mit Zeitzonen-Hinweis, z. B. „15:00 (Hong Kong time)“.
+
+**Auth-Mail-Links:** Einladungs- und Reset-Mails verlinken auf `{{ .SiteURL }}?token_hash={{ .TokenHash }}&type=invite|recovery#/passwort-setzen`; die App ruft damit `verifyOtp` auf. Grund: Der Standard-Link von Supabase legt Tokens in den `#`-Teil der Adresse und kollidiert mit dem HashRouter. Eigene Vorlagen erfordern eigenes SMTP (ist eingerichtet).
 
 | Anlass | An Familie | An Mats |
 |---|---|---|
-| Einzeltermin gebucht | „Dein Termin ist gebucht: Mo, 5. Okt., 15:00–16:30“ | „Neue Buchung: Mia Berger, …“ |
+| Einzeltermin gebucht | „Your lesson is booked: Mon, 5 Oct, 15:00–16:30“ | „New booking: Mia Berger, …“ |
 | Serie gebucht | Übersicht aller Termine + übersprungene Wochen | dito, kurz |
 | Termin abgesagt (von Familie oder Mats) | Bestätigung der Absage | Info |
 | Serie beendet | Übersicht der abgesagten Termine | Info |
-| Einladung | Supabase-Auth-Vorlage (deutsch anpassen) | – |
-| Passwort vergessen | Supabase-Auth-Vorlage (deutsch anpassen) | – |
+| Einladung | Eigene Vorlage `supabase/templates/invite.html` (englisch) | – |
+| Passwort vergessen | Eigene Vorlage `supabase/templates/recovery.html` (englisch) | – |
 | Wöchentliches Backup | – | Anhänge JSON + CSV |
 
 **Supabase Auth muss ebenfalls über Gmail senden:** In Supabase unter Authentication → Emails → SMTP Settings eigenes SMTP eintragen (Gmail). Der eingebaute Supabase-Mailversand ist nur für Tests gedacht und stark begrenzt.

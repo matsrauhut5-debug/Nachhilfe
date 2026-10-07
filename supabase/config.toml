@@ -244,11 +244,11 @@ otp_expiry = 3600
 
 # Uncomment to customize email template
 [auth.email.template.invite]
-subject = "Einladung: Nachhilfe bei Mats"
+subject = "Invitation: Tutoring with Mats"
 content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.recovery]
-subject = "Neues Passwort für Nachhilfe bei Mats"
+subject = "Your new password for Tutoring with Mats"
 content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize notification email template
