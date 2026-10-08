@@ -422,6 +422,8 @@ Jede Phase: umsetzen → committen/pushen → Mats testet anhand der Checkliste 
 
 ---
 
+**Stand (Oktober 2026):** Phasen 0–12 umgesetzt. Testdaten gelöscht; in der Datenbank sind nur Mats' Admin-Konto, `settings` (inkl. Kalender-Token) und seine E-Mail-Einstellungen. Mats trägt Standardzeiten und echte Familien selbst ein. `supabase db advisors`: nur gewollte Hinweise (RPCs als `security definer`, prüfen den Aufrufer selbst) und „leaked password protection“ (nur im Pro-Plan).
+
 ## 14. Später (bewusst nicht jetzt bauen)
 
 - Automatische Synchronisation mit Google Sheets (aktuell: Kopieren-Knopf)
