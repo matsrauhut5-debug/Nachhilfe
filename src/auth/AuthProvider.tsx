@@ -16,6 +16,9 @@ type AuthState = {
   loading: boolean
   session: Session | null
   profile: Profile | null
+  // The profile couldn't be loaded (network or a stale page version) – not the same as "not active"
+  profileError: boolean
+  retryProfile: () => void
   // Error from the invite/reset link, if it was invalid
   linkError: string | null
   // Signed in via an invite/reset link in this visit (no password chosen yet)
@@ -49,19 +52,20 @@ async function consumeEmailLink(): Promise<{ used: boolean; error: string | null
   }
 }
 
-async function loadProfile(userId: string): Promise<Profile | null> {
-  const { data } = await supabase
+async function loadProfile(userId: string): Promise<{ profile: Profile | null; failed: boolean }> {
+  const { data, error } = await supabase
     .from('profiles')
     .select('id, role, student_name, email, active')
     .eq('id', userId)
     .maybeSingle()
-  return data as Profile | null
+  return { profile: data as Profile | null, failed: !!error }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [profileError, setProfileError] = useState(false)
   const [linkError, setLinkError] = useState<string | null>(null)
   const [fromEmailLink, setFromEmailLink] = useState(false)
 
@@ -69,10 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false
 
     async function apply(next: Session | null) {
-      const p = next ? await loadProfile(next.user.id) : null
+      const r = next ? await loadProfile(next.user.id) : { profile: null, failed: false }
       if (cancelled) return
       setSession(next)
-      setProfile(p)
+      setProfile(r.profile)
+      setProfileError(r.failed)
       setLoading(false)
     }
 
@@ -102,6 +107,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  async function retryProfile() {
+    if (!session) return
+    setLoading(true)
+    const r = await loadProfile(session.user.id)
+    setProfile(r.profile)
+    setProfileError(r.failed)
+    setLoading(false)
+  }
+
   async function signOut() {
     setFromEmailLink(false)
     await supabase.auth.signOut()
@@ -112,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ loading, session, profile, linkError, fromEmailLink, signOut, passwordChosen }}>
+    <AuthContext.Provider value={{ loading, session, profile, profileError, retryProfile, linkError, fromEmailLink, signOut, passwordChosen }}>
       {children}
     </AuthContext.Provider>
   )
