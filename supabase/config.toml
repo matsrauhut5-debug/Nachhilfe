@@ -429,3 +429,7 @@ verify_jwt = false
 # Called by the outbox trigger with x-webhook-secret, not with a user JWT
 [functions.send-notification]
 verify_jwt = false
+
+# Called by the weekly GitHub Action with x-backup-secret
+[functions.weekly-backup]
+verify_jwt = false

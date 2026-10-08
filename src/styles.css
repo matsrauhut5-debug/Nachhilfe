@@ -396,3 +396,8 @@ input:disabled{opacity:.6}
 .latewarn{margin:-8px 0 16px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:.9rem}
 .ev.late{opacity:.45}
 .alesson.late{opacity:.5}
+.privacy{max-width:640px;margin:0 auto}
+.privacy h1{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.8rem;margin:0 0 4px}
+.privacy h2{font-size:1rem;margin:18px 0 6px}
+.privacy p,.privacy li{font-size:.94rem}
+.privacy ul{margin:0;padding-left:20px}
