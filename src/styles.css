@@ -308,3 +308,50 @@ table.pay th.num{text-align:right}
 .lg.extra{background:color-mix(in srgb,var(--gold) 30%,transparent);border:1px dashed color-mix(in srgb,var(--gold) 60%,transparent)}
 .tznote{font-size:.8rem;color:var(--muted);margin:8px 0 0}
 .tznote b{color:var(--gold);font-weight:600}
+
+/* Family page: calm layout */
+.head.fam{margin-bottom:16px}
+.head.fam h1{font-size:clamp(1.7rem,6vw,2.3rem)}
+.seg.wide{display:flex;width:100%;margin-bottom:16px}
+.seg.wide button{flex:1;padding:9px 12px}
+.weeknav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.weeknav .wklabel{min-width:0;font-size:1.05rem}
+.daystrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:14px}
+.daypill{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-width:0}
+.daypill .wd{font-size:.72rem;color:var(--muted);font-weight:600}
+.daypill .dm{font-weight:700;font-size:1rem}
+.daypill .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:4px}
+.daypill .dot.own{background:var(--gold)}
+.daypill .dot.none{background:transparent}
+.daypill.empty .dm{color:var(--muted);font-weight:500}
+.daypill.on{border-color:var(--accent);background:var(--accent-soft)}
+.daypill.on .wd,.daypill.on .dm{color:var(--accent-ink)}
+.daybox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.daytitle{margin:0 0 10px;font-weight:600}
+.timegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.timegrid .chip{padding:10px 0;text-align:center;font-size:1rem}
+.lessonlist .rowitem.more{width:100%;border:0;background:transparent;justify-content:center;color:var(--accent-ink);font-weight:600}
+
+/* Students table */
+.stable{overflow:hidden}
+.srow-head,.srow-item{display:grid;grid-template-columns:minmax(0,1fr) 11em 7em;gap:12px;align-items:center;padding:11px 16px}
+.srow-head{font-size:.78rem;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line)}
+.srow-item{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:inherit}
+.srow-item:last-child{border-bottom:0}
+.srow-item:hover{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.srow-item.inactive{opacity:.6}
+.srow-head .num,.srow-item .num{text-align:right;font-variant-numeric:tabular-nums}
+.srow-item .due{color:var(--danger);font-weight:600}
+.who2{display:flex;align-items:center;gap:10px;min-width:0}
+.who2 .dot{flex:0 0 10px;height:10px;border-radius:50%;background:var(--c)}
+.who2 b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who2 small{display:block;color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who2 .tag{margin-left:6px}
+@media (max-width:560px){
+  .srow-head,.srow-item{grid-template-columns:minmax(0,1fr) auto}
+  .srow-head .prices3,.srow-item .prices3,.srow-head span:nth-child(2){display:none}
+}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+.dangerzone{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+input:disabled{opacity:.6}

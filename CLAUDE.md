@@ -271,7 +271,9 @@ GitHub Secrets: `BACKUP_SECRET`, `SUPABASE_FUNCTIONS_URL`. GitHub Variables: `VI
 
 ## 9. Ansicht für Familien (`#/book`)
 
-So schlicht wie im Prototyp:
+**Aktuelles Layout (Phase 6, auf Wunsch von Mats vereinfacht – hat Vorrang vor der Liste darunter):** Kopf „Hi Mia“ + eine Zeile „Times in Hong Kong time · free cancellation up to 24 h before“; Karte „Next lesson“; zwei Reiter **Book** / **My lessons (n)**. *Book:* Wochen-Pfeile, Tagesleiste mit 7 Tagen (Punkt grün = frei, gold = eigener Termin), darunter nur die Uhrzeiten des gewählten Tages. *My lessons:* schlichte Liste (Datum, Zeit, „weekly“), „Cancel“ bzw. „Message Mats to cancel“; bei Serien-Terminen fragt der Absage-Dialog „Only this lesson“ / „This and all following“ (keine eigenen Serienkarten). Wenig Text.
+
+Ursprüngliche Beschreibung:
 
 1. Kopf: „Nachhilfe bei Mats“, darunter „Familie Berger · Mia“ und „Alle Zeiten in deiner Ortszeit (…)“. Alle Zeiten der Familien-Ansicht in Gerätezeit (siehe Abschnitt 6, Zeitzonen).
 2. Karte **„Dein nächster Termin“** (falls vorhanden).
@@ -306,6 +308,7 @@ Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`)
 - Einstellung „Kostenlos absagen bis: 12 / 24 / 48 Stunden vorher“.
 
 **Schüler & Preise**
+- **Aktuell (Phase 6):** kompakte Tabelle (Farbpunkt, Name, @username/E-Mail, Status-Tag, Preise 1/1,5/2 Std., Offen); Tipp auf Zeile → Bearbeiten-Dialog mit „Save“ und unten Einladung/Sperren/Löschen.
 - Karte pro Familie: Schülername, Eltern, E-Mail, Preise 60/90/120 (HK$), Statistik „X Std. gehalten · HK$ Y offen“.
 - „+ Schüler anlegen“ → Einladung per E-Mail. „Einladung erneut senden“. „Deaktivieren“ (Login gesperrt, Daten bleiben). Löschen nur ohne Buchungen.
 - Hinweis: Neue Preise gelten nur für neue Buchungen.

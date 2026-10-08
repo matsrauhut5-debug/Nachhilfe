@@ -78,15 +78,14 @@ export default function BookDialog(props: {
 
   return (
     <Modal onClose={props.onClose}>
-      <h3>Book a lesson</h3>
+      <h3>{fmtDayLong(local.iso)}</h3>
       <div className="summary">
-        <div className="big">{fmtDayLong(local.iso)}</div>
-        <div>
-          {fromMin(local.min)}–{fromMin((local.min + dur) % 1440)} · {money(prices[dur])}
+        <div className="big">
+          {fromMin(local.min)}–{fromMin((local.min + dur) % 1440)}
         </div>
+        <div className="muted">{money(prices[dur])}</div>
       </div>
 
-      <p className="fieldlbl">How long?</p>
       <div className="durpick">
         {DURATIONS.map((d) => (
           <button key={d} type="button" className={d === dur ? 'on' : ''} disabled={!valid.includes(d)} onClick={() => setDur(d)}>
@@ -97,13 +96,13 @@ export default function BookDialog(props: {
       </div>
 
       <label className="switch">
-        Every week at this time
+        Repeat every week
         <input type="checkbox" checked={repeat} onChange={(e) => setRepeat(e.target.checked)} />
       </label>
       {repeat && (
         <div className="repbox">
           <label className="field">
-            Until when?
+            Until
             <input type="date" min={local.iso} max={maxEnd} value={endIso} onChange={(e) => setEndIso(e.target.value)} />
           </label>
           <div className="quick">
@@ -119,17 +118,16 @@ export default function BookDialog(props: {
           </div>
           <div className="prev">
             {!preview ? (
-              <span className="muted">Checking which weeks are free …</span>
+              <span className="muted">Checking …</span>
             ) : (
               <>
                 <b>{count} {count === 1 ? 'lesson' : 'lessons'}</b>
                 {skipped.length > 0 && (
-                  <div className="bad">Not free, will be skipped: {skipped.map((d) => fmtDayShort(zonedParts(d, tz).iso)).join(', ')}</div>
+                  <div className="bad">Not free, skipped: {skipped.map((d) => fmtDayShort(zonedParts(d, tz).iso)).join(', ')}</div>
                 )}
                 {shifted && (
                   <div className="muted" style={{ marginTop: 4 }}>
-                    From {fmtDayShort(zonedParts(shifted, tz).iso)} the lesson is at {fromMin(zonedParts(shifted, tz).min)} your time
-                    (clock change in Germany).
+                    From {fmtDayShort(zonedParts(shifted, tz).iso)}: {fromMin(zonedParts(shifted, tz).min)} (clock change in Germany)
                   </div>
                 )}
               </>
@@ -142,7 +140,7 @@ export default function BookDialog(props: {
       <div className="actions" style={{ marginTop: 14 }}>
         <button className="btn ghost" onClick={props.onClose}>Cancel</button>
         <button className="btn primary" onClick={book} disabled={busy || valid.length === 0 || (repeat && !preview)}>
-          {busy ? 'Booking …' : count > 1 ? `Book ${count} lessons` : 'Book lesson'}
+          {busy ? 'Booking …' : count > 1 ? `Book ${count} lessons` : 'Book'}
         </button>
       </div>
     </Modal>
