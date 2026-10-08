@@ -258,7 +258,7 @@ notifications_outbox (
 ### 8.2 Edge Functions
 
 - **`invite-family`** (nur Admin, prüft JWT + Rolle): legt Nutzer per `auth.admin.inviteUserByEmail` an (Weiterleitung auf `#/set-password`), erstellt die `profiles`-Zeile mit Namen, Preisen und automatisch vergebener Farbe. Auch „Einladung erneut senden“.
-- **`send-notification`**: wird per **Database Webhook** bei neuem Eintrag in `notifications_outbox` aufgerufen (Webhook mit geheimem Header absichern). Verschickt über Gmail-SMTP je eine E-Mail an die Familie und an Mats, setzt `sent_at` oder `error`.
+- **`send-notification`**: wird per **Database Webhook** bei neuem Eintrag in `notifications_outbox` aufgerufen (Webhook mit geheimem Header absichern). Verschickt über Gmail-SMTP je eine E-Mail an die Familie und an Mats, setzt `sent_at` oder `error`. Umgesetzt als Trigger `outbox_notify` (pg_net) mit URL + Secret aus Supabase Vault (`notify_url`, `webhook_secret`). Hat Mats selbst gebucht/abgesagt (`payload.by = 'admin'`), bekommt nur die Familie eine Mail.
 - **`calendar-feed`**: öffentlich erreichbar (JWT-Prüfung aus), aber nur mit korrektem `?token=`. Liefert `text/calendar` (iCalendar) mit allen Terminen mit Status `booked` von −30 bis +180 Tagen. Pro Termin: `UID` = Buchungs-ID, `SUMMARY` = „Nachhilfe: Mia Berger“, `DTSTART/DTEND` in UTC, `DESCRIPTION` mit Dauer, Betrag, Serie ja/nein. Kalenderkopf mit `X-WR-CALNAME:Nachhilfe`, `REFRESH-INTERVAL;VALUE=DURATION:PT15M`, `X-PUBLISHED-TTL:PT15M`. Abgesagte Termine verschwinden beim nächsten Abruf.
 - **`weekly-backup`**: nur mit geheimem Header aufrufbar. Exportiert `profiles`, `bookings`, `availability_*`, `settings` (ohne `ics_token`) als JSON + Buchungen als CSV und schickt sie als Anhang an Mats.
 
@@ -293,7 +293,12 @@ Ursprüngliche Beschreibung:
 
 ## 10. Ansicht für Mats (`#/admin`)
 
-Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`), unabhängig vom Gerät.
+**Aktuelle Struktur (Phase 7, von Mats freigegeben – hat Vorrang vor der Beschreibung darunter):** kompakte Kopfzeile „Tutoring“ + Menü; vier Reiter **Week · Students · Payments · Settings**.
+- *Week:* Woche/Monat; Zeile „5 lessons · 7 hrs · HK$ 1,860“ mit „Edit hours“ und „+ Lesson“; am Rechner Zeitraster (DE + HK-Spalte), auf schmalen Bildschirmen (≤700 px) Tagesliste mit Terminen und „Free …“-Zeiten; Tipp auf Termin → Details (Paid-Schalter, Cancel, Late cancellation, End series from here, Don't charge); Tipp auf Tag → Block / Reset / Edit hours.
+- *Students:* Tabelle + Bearbeiten-Dialog. *Payments:* Monat, Filter, Summen, Tabelle, „Copy for Google Sheets“, „Download backup“.
+- *Settings:* Usual hours (mit Edit), Free cancellation (12/24/48 h), Apple Calendar (Link, Copy, New link, Anleitung).
+
+Ursprünglich: Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`), unabhängig vom Gerät.
 
 **Kalender**
 - Wochenansicht als Zeitraster (Mo–So), freie Zeiten hellgrün hinterlegt, Termine als Blöcke in der Schülerfarbe mit Vorname, Uhrzeit, „bezahlt/offen“. Rote Linie für „jetzt“. Monatsansicht (Tipp auf Tag → Woche).

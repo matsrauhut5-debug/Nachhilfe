@@ -355,3 +355,41 @@ table.pay th.num{text-align:right}
 @media (max-width:420px){.two{grid-template-columns:1fr}}
 .dangerzone{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 input:disabled{opacity:.6}
+
+/* Admin: calm layout */
+.adminbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.adminbar .brand{font-family:"Fraunces",Georgia,serif;font-size:1.35rem;font-weight:500}
+.adminbar .usermenu{margin:0}
+.weekbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 12px}
+.weekbar .stat{font-size:.92rem;color:var(--muted)}
+.weekbar .stat b{color:var(--ink);font-weight:600}
+.legend .tzinfo b{color:var(--gold);font-weight:600}
+.only-narrow{display:none}
+@media (max-width:700px){.only-wide{display:none}.only-narrow{display:block}}
+.agenda{display:flex;flex-direction:column;gap:10px}
+.aday{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 12px 10px}
+.aday.today{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.aday-head{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:transparent;padding:8px 0;font-weight:700;text-align:left}
+.aday.today .aday-head{color:var(--accent-ink)}
+.aday-head .cust{font-size:.7rem;color:var(--accent-ink);font-weight:600}
+.alesson{display:flex;align-items:center;gap:10px;width:100%;border:0;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card));border-radius:9px;padding:8px 10px;margin-bottom:6px;text-align:left;font-size:.92rem}
+.alesson .t{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.alesson .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alesson.late{opacity:.7;border-left-style:dashed}
+.alesson .pd,.ev .pd{font-weight:700;color:var(--accent-ink);font-size:.78rem}
+.alesson .op{font-weight:700;color:var(--danger);font-size:.78rem}
+.afree{margin:2px 0 0;font-size:.82rem;color:var(--muted)}
+.lessontitle{display:flex;align-items:center;gap:10px}
+.lessontitle .dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:0 0 12px}
+.lessontitle + .summary .tag{margin-left:8px}
+.setting{margin-bottom:18px}
+.setting-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.setting-head h3,.settings-grid h3{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.15rem;margin:0 0 2px}
+.setting-head p{margin:0}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.settings-grid .panel{margin:0}
+.linkbox{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.8rem;color:var(--muted)}
+.srow a.btn{text-decoration:none;color:inherit}
+.howto{margin-top:12px;font-size:.85rem}
+.howto summary{cursor:pointer;color:var(--accent-ink);font-weight:600}
+.howto p{margin:8px 0 0;color:var(--muted)}

@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import UserMenu from '../auth/UserMenu'
+import WeekTab from './WeekTab'
 import StudentsTab from './StudentsTab'
-import UsualHoursTab from './UsualHoursTab'
-import CalendarTab from './CalendarTab'
+import PaymentsTab from './PaymentsTab'
+import SettingsTab from './SettingsTab'
 import { useSettings } from './availability'
 
 const TABS = [
-  ['cal', 'Calendar'],
-  ['tpl', 'Usual hours'],
-  ['stud', 'Students & prices'],
+  ['week', 'Week'],
+  ['stud', 'Students'],
   ['pay', 'Payments'],
+  ['set', 'Settings'],
 ] as const
 
 type Tab = (typeof TABS)[number][0]
@@ -23,13 +24,12 @@ function initialTab(): Tab {
   } catch {
     // storage unavailable (private mode etc.)
   }
-  return 'cal'
+  return 'week'
 }
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>(initialTab)
   const { settings, setSettings, error, reload } = useSettings()
-  const label = TABS.find(([id]) => id === tab)![1]
 
   function choose(t: Tab) {
     setTab(t)
@@ -44,17 +44,16 @@ export default function AdminPage() {
   if (tab === 'stud') content = <StudentsTab />
   else if (error) content = <div className="card placeholder">Could not load settings. <button className="btn sm" onClick={reload}>Try again</button></div>
   else if (!settings) content = <p className="muted">Loading …</p>
-  else if (tab === 'cal') content = <CalendarTab settings={settings} />
-  else if (tab === 'tpl') content = <UsualHoursTab settings={settings} onSettings={setSettings} />
-  else content = <div className="card placeholder">“{label}” will be built in one of the next phases.</div>
+  else if (tab === 'week') content = <WeekTab settings={settings} />
+  else if (tab === 'pay') content = <PaymentsTab settings={settings} />
+  else content = <SettingsTab settings={settings} onSettings={setSettings} />
 
   return (
     <>
-      <UserMenu />
-      <header className="head">
-        <h1>Overview</h1>
-        <p>Lessons, your hours, prices and payments in one place.</p>
-      </header>
+      <div className="adminbar">
+        <span className="brand">Tutoring</span>
+        <UserMenu />
+      </div>
       <nav className="tabs" role="tablist">
         {TABS.map(([id, text]) => (
           <button key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'on' : ''} onClick={() => choose(id)}>

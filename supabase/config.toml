@@ -421,3 +421,11 @@ enabled = true
 # Called before sign-in, so there is no user JWT to verify
 [functions.username-login]
 verify_jwt = false
+
+# Public feed for Apple Calendar, protected by ?token=
+[functions.calendar-feed]
+verify_jwt = false
+
+# Called by the outbox trigger with x-webhook-secret, not with a user JWT
+[functions.send-notification]
+verify_jwt = false
