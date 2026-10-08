@@ -50,6 +50,8 @@ const list = (items: string[]) => `<ul style="margin:0 0 10px;padding-left:20px"
 
 type Mail = { to: string; subject: string; html: string }
 
+const BOOKING_KINDS = ['booked', 'series_booked']
+
 function compose(kind: string, p: Payload, fam: { email: string; student_name: string | null; timezone: string }, adminTz: string, cancelHours: number) {
   const name = fam.student_name ?? 'Student'
   const first = name.split(' ')[0]
@@ -141,9 +143,10 @@ Deno.serve(async (req) => {
   if (!row || row.sent_at) return new Response('Nothing to do')
 
   const [{ data: fam }, { data: settings }] = await Promise.all([
-    admin.from('profiles').select('email, student_name, timezone').eq('id', row.family_id).maybeSingle(),
+    admin.from('profiles').select('email, student_name, timezone, notify_bookings, notify_cancellations').eq('id', row.family_id).maybeSingle(),
     admin.from('settings').select('admin_email, timezone, cancel_hours').eq('id', 1).maybeSingle(),
   ])
+  const { data: me } = await admin.from('profiles').select('notify_bookings, notify_cancellations').eq('role', 'admin').limit(1).maybeSingle()
 
   try {
     if (!fam || !settings) throw new Error('Family or settings not found')
@@ -152,7 +155,14 @@ Deno.serve(async (req) => {
     if (!pass) throw new Error('GMAIL_APP_PASSWORD is not set')
 
     const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } })
-    const mails = compose(row.kind, row.payload as Payload, fam, settings.timezone, settings.cancel_hours)
+    // Respect each person's email settings (to = '' means the mail for Mats)
+    const isBooking = BOOKING_KINDS.includes(row.kind)
+    const wants = (forFamily: boolean) => {
+      const p = forFamily ? fam : me
+      if (!p) return true
+      return isBooking ? p.notify_bookings : p.notify_cancellations
+    }
+    const mails = compose(row.kind, row.payload as Payload, fam, settings.timezone, settings.cancel_hours).filter((m) => wants(m.to !== ''))
     for (const m of mails) {
       await transport.sendMail({
         from: `"Nachhilfe Mats" <${user}>`,

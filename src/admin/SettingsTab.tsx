@@ -5,6 +5,7 @@ import { ConfirmDialog, Modal, useToast } from '../lib/ui'
 import { copyText } from '../lib/clipboard'
 import TimeGrid from './TimeGrid'
 import { useAvailability, type Settings } from './availability'
+import EmailPrefs from '../auth/EmailPrefs'
 
 export default function SettingsTab({ settings, onSettings }: { settings: Settings; onSettings: (s: Settings) => void }) {
   return (
@@ -13,6 +14,11 @@ export default function SettingsTab({ settings, onSettings }: { settings: Settin
       <div className="settings-grid">
         <Cancellation settings={settings} onSettings={onSettings} />
         <AppleCalendar />
+        <section className="card panel">
+          <h3>Emails to you</h3>
+          <p className="muted small">Invitation and password emails to families are always sent.</p>
+          <EmailPrefs withReport />
+        </section>
       </div>
     </>
   )

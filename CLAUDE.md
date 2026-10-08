@@ -351,6 +351,8 @@ Versand über Gmail-SMTP (App-Passwort; Voraussetzung: Zwei-Faktor-Anmeldung im 
 | Passwort vergessen | Eigene Vorlage `supabase/templates/recovery.html` (englisch) | – |
 | Monatlicher Zahlungsbericht (1. des Monats, Vormonat) | – | CSV `Name, Betrag, Datum, Status` (Datum TT/MM/JJJJ, „Bezahlt“/„Nicht bezahlt“) |
 
+**E-Mail-Einstellungen (Phase 11):** Jedes Konto hat `profiles.notify_bookings`, `notify_cancellations` (Familien und Mats) und `notify_report` (nur Mats, Monatsbericht); änderbar nur über RPC `set_email_prefs` (eigene Zeile). Familien: Menü „Emails“; Mats: Settings → „Emails to you“. `send-notification` und `monthly-report` halten sich daran. Einladungs-/Passwort-Mails gehen immer raus.
+
 **Supabase Auth muss ebenfalls über Gmail senden:** In Supabase unter Authentication → Emails → SMTP Settings eigenes SMTP eintragen (Gmail). Der eingebaute Supabase-Mailversand ist nur für Tests gedacht und stark begrenzt.
 
 ---

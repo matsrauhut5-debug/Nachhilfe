@@ -35,6 +35,8 @@ Deno.serve(async (req) => {
   const { data: settings } = await admin.from('settings').select('admin_email, timezone').eq('id', 1).maybeSingle()
   if (!settings) return new Response('No settings', { status: 500 })
   const tz = settings.timezone
+  const { data: me } = await admin.from('profiles').select('notify_report').eq('role', 'admin').limit(1).maybeSingle()
+  if (me && !me.notify_report) return new Response('Monthly report is switched off')
 
   // Last month in Mats' time zone (optional ?month=2026-09 for a specific month)
   const param = new URL(req.url).searchParams.get('month')
