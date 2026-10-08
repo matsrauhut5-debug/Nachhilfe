@@ -393,3 +393,6 @@ input:disabled{opacity:.6}
 .howto{margin-top:12px;font-size:.85rem}
 .howto summary{cursor:pointer;color:var(--accent-ink);font-weight:600}
 .howto p{margin:8px 0 0;color:var(--muted)}
+.latewarn{margin:-8px 0 16px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:.9rem}
+.ev.late{opacity:.45}
+.alesson.late{opacity:.5}

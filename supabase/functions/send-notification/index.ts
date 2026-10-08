@@ -17,6 +17,7 @@ type Payload = {
   kept?: number
   by?: 'family' | 'admin'
   reason?: 'teacher' | 'family'
+  full_price?: number
 }
 
 const TZ_NAMES: Record<string, string> = { 'Europe/Berlin': 'German', 'Asia/Hong_Kong': 'Hong Kong' }
@@ -108,15 +109,19 @@ function compose(kind: string, p: Payload, fam: { email: string; student_name: s
     ])
   } else if (kind === 'late_cancelled') {
     const s = starts[0]
+    const fee = money(p.price ?? 0)
+    const famText = byMats
+      ? `${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime} is cancelled at short notice.`
+      : `You cancelled ${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime}.`
     mails.push({
       to: fam.email,
       subject: `Lesson cancelled at short notice: ${when(s, dur, ftz)}`,
-      html: html(
-        [`Hello,`, `${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime} is cancelled.`, `Because it was cancelled less than ${cancelHours} hours before, it is charged as usual (${money(p.price ?? 0)}).`],
-        'Open booking page',
-      ),
+      html: html([`Hello,`, famText, `Because it was less than ${cancelHours} hours before the lesson, 50 % is charged: <b>${fee}</b>.`], 'Open booking page'),
     })
-    toMats(`Late cancellation: ${name}, ${when(s, dur, adminTz)}`, [`You marked <b>${name}</b>'s lesson on ${when(s, dur, adminTz)} ${aTime} as a late cancellation. ${money(p.price ?? 0)} stays in Payments.`])
+    toMats(`Late cancellation: ${name}, ${when(s, dur, adminTz)}`, [
+      `${byMats ? `You marked <b>${name}</b>'s lesson` : `<b>${name}</b> cancelled the lesson`} on ${when(s, dur, adminTz)} ${aTime} at short notice.`,
+      `50 % is charged: ${fee} (stays in Payments). The time is free again.`,
+    ])
   }
   return mails
 }

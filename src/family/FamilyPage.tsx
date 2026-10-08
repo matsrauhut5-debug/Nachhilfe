@@ -18,13 +18,14 @@ import {
   zonedToUtc,
 } from '../lib/time'
 import { rpcMessage } from '../lib/rpc'
+import { money } from '../lib/format'
 import { Modal, useToast } from '../lib/ui'
 import BookDialog, { type Prices } from './BookDialog'
 
 const WEEKS_AHEAD = 11 // current week + 11 = 12 weeks
 const LIST_SHORT = 6
 
-type Own = { id: string; starts_at: string; ends_at: string; duration_min: number; series_id: string | null }
+type Own = { id: string; starts_at: string; ends_at: string; duration_min: number; series_id: string | null; price: number }
 type Free = { starts_at: string; max_duration: number }
 type Me = { student_name: string | null; price_60: number | null; price_90: number | null; price_120: number | null }
 
@@ -55,7 +56,7 @@ export default function FamilyPage() {
       supabase.rpc('booking_info'),
       supabase
         .from('bookings')
-        .select('id, starts_at, ends_at, duration_min, series_id')
+        .select('id, starts_at, ends_at, duration_min, series_id, price')
         .eq('status', 'booked')
         .gt('ends_at', new Date().toISOString())
         .order('starts_at'),
@@ -210,7 +211,7 @@ export default function FamilyPage() {
       ) : (
         <div className="card lessonlist">
           {shown.map((l) => {
-            const canCancel = new Date(l.starts_at).getTime() - Date.now() > cancelHours * 3600_000
+            const started = new Date(l.starts_at).getTime() <= Date.now()
             return (
               <div key={l.id} className="rowitem">
                 <div>
@@ -220,11 +221,7 @@ export default function FamilyPage() {
                     {l.series_id && ' · weekly'}
                   </div>
                 </div>
-                {canCancel ? (
-                  <button className="btn sm ghost" onClick={() => setCancelling(l)}>Cancel</button>
-                ) : (
-                  <span className="lock">Message Mats to cancel</span>
-                )}
+                {!started && <button className="btn sm ghost" onClick={() => setCancelling(l)}>Cancel</button>}
               </div>
             )
           })}
@@ -249,20 +246,28 @@ export default function FamilyPage() {
       )}
 
       {cancelling && (
-        <CancelDialog lesson={cancelling} label={`${fmtDayShort(local(cancelling.starts_at).iso)}, ${timeRange(cancelling)}`} onClose={() => setCancelling(null)} onDone={reloadAll} />
+        <CancelDialog
+          lesson={cancelling}
+          label={`${fmtDayShort(local(cancelling.starts_at).iso)}, ${timeRange(cancelling)}`}
+          late={new Date(cancelling.starts_at).getTime() - Date.now() <= cancelHours * 3600_000}
+          cancelHours={cancelHours}
+          onClose={() => setCancelling(null)}
+          onDone={reloadAll}
+        />
       )}
     </>
   )
 }
 
-function CancelDialog({ lesson, label, onClose, onDone }: { lesson: Own; label: string; onClose: () => void; onDone: () => void }) {
+function CancelDialog(props: { lesson: Own; label: string; late: boolean; cancelHours: number; onClose: () => void; onDone: () => void }) {
+  const { lesson, label, late, onClose, onDone } = props
   const toast = useToast()
   const [busy, setBusy] = useState(false)
 
   async function cancelOne() {
     setBusy(true)
     const { error } = await supabase.rpc('cancel_booking', { p_id: lesson.id })
-    toast(error ? rpcMessage(error)! : 'Lesson cancelled')
+    toast(error ? rpcMessage(error)! : late ? 'Lesson cancelled (50 % charged)' : 'Lesson cancelled')
     onDone()
     onClose()
   }
@@ -283,11 +288,16 @@ function CancelDialog({ lesson, label, onClose, onDone }: { lesson: Own; label: 
     <Modal onClose={onClose}>
       <h3>Cancel lesson?</h3>
       <p className="muted" style={{ margin: '0 0 18px' }}>{label}</p>
+      {late && (
+        <p className="latewarn">
+          This is less than {props.cancelHours} hours before the lesson, so 50 % is charged: <b>{money(Number(lesson.price) / 2)}</b>.
+        </p>
+      )}
       <div className="actions stack">
         <button className="btn danger" disabled={busy} onClick={cancelOne}>
-          {lesson.series_id ? 'Only this lesson' : 'Cancel lesson'}
+          {late ? 'Cancel anyway (50 % charged)' : lesson.series_id ? 'Only this lesson' : 'Cancel lesson'}
         </button>
-        {lesson.series_id && (
+        {lesson.series_id && !late && (
           <button className="btn danger" disabled={busy} onClick={cancelFollowing}>This and all following</button>
         )}
         <button className="btn ghost" onClick={onClose}>Back</button>

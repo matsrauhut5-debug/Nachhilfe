@@ -131,7 +131,7 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 | Pausen zwischen Stunden | **keine** |
 | Buchbar im Voraus | Einzeltermine bis **12 Wochen** voraus; Serien bis max. **52 Wochen** |
 | Kostenlose Absage durch Familie | bis **24 Std.** vorher (Einstellung: 12/24/48, Standard 24) |
-| Später absagen | nur Mats kann das; er markiert „Kurzfristige Absage (wird berechnet)“ → Status `late`, bleibt in den Zahlungen |
+| Später absagen (Update Phase 10) | Familien können auch innerhalb der Frist selbst absagen → Status `late`, **50 % des Preises** werden berechnet (Hinweis vorher im Dialog). Mats kann `late` ebenfalls setzen (50 %) oder normal absagen (kostenlos, z. B. beim Verschieben). Die Zeit einer `late`-Stunde ist wieder frei; im Kalender wird sie nur blass angezeigt. |
 | Preis | pro Familie drei Preise (60/90/120). Bei Buchung wird der Preis **in die Buchung kopiert**; spätere Preisänderungen ändern bestehende Buchungen nicht |
 | Serie | „Jede Woche zu dieser Zeit“ bis zu einem Enddatum. Wochen, die nicht frei sind, werden übersprungen und vorher angezeigt |
 | Doppelbuchung | darf technisch unmöglich sein (Datenbank-Constraint, siehe 7) |

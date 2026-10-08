@@ -51,11 +51,11 @@ export function LessonDialog(props: {
     return (
       <Modal onClose={() => setConfirm(null)}>
         <h3>Late cancellation?</h3>
-        <p className="muted" style={{ margin: '0 0 18px' }}>The lesson is cancelled but still charged and stays in Payments. The family gets an email.</p>
+        <p className="muted" style={{ margin: '0 0 18px' }}>The lesson is cancelled and 50 % is charged ({money(Number(l.price) / 2)}). It stays in Payments and the time is free again. The family gets an email.</p>
         <div className="actions">
           <button className="btn ghost" onClick={() => setConfirm(null)}>Back</button>
           <button className="btn danger" disabled={busy} onClick={() => run('mark_late_cancel', { p_id: l.id }, 'Marked as late cancellation')}>
-            Charge as late cancellation
+            Charge 50 %
           </button>
         </div>
       </Modal>
@@ -73,7 +73,7 @@ export function LessonDialog(props: {
       <Modal onClose={() => setConfirm(null)}>
         <h3>{series ? 'End series from here?' : 'Cancel this lesson?'}</h3>
         <p className="muted" style={{ margin: '0 0 6px' }}>
-          {series ? 'This lesson and all following lessons of the series are cancelled.' : 'The lesson is removed and not charged.'}
+          {series ? 'This lesson and all following lessons of the series are cancelled, nothing is charged.' : 'The lesson is removed and nothing is charged, also at short notice (e.g. when moving it).'}
         </p>
         <p className="fieldlbl" style={{ margin: '12px 0 8px' }}>Why?</p>
         <div className="actions stack">
@@ -103,7 +103,7 @@ export function LessonDialog(props: {
         <div style={{ marginTop: 6 }}>
           {fmtDuration(l.duration_min)} · {money(l.price)}
           {l.series_id && ' · weekly'}
-          {l.status === 'late' && <span className="tag red">Late cancellation (charged)</span>}
+          {l.status === 'late' && <span className="tag red">Late cancellation (50 %)</span>}
         </div>
       </div>
       <label className="switch">
@@ -115,7 +115,7 @@ export function LessonDialog(props: {
           <button className="btn danger" onClick={() => setConfirm('cancel')}>Cancel lesson</button>
         )}
         {l.status === 'booked' && (
-          <button className="btn danger" onClick={() => setConfirm('late')}>Late cancellation (charge)</button>
+          <button className="btn danger" onClick={() => setConfirm('late')}>Late cancellation (50 % charged)</button>
         )}
         {l.status === 'booked' && l.series_id && !past && (
           <button className="btn danger" onClick={() => setConfirm('series')}>End series from here</button>
