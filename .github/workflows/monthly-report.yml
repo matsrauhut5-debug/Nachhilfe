@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: '0 7 1 * *' # 1st of the month, 07:00 UTC
   workflow_dispatch:
+    inputs:
+      month:
+        description: 'Month as YYYY-MM (empty = last month)'
+        required: false
 
 permissions: {}
 
@@ -17,7 +21,8 @@ jobs:
         env:
           FUNCTIONS_URL: ${{ secrets.SUPABASE_FUNCTIONS_URL }}
           SECRET: ${{ secrets.REPORT_SECRET }}
+          MONTH: ${{ inputs.month }}
         run: |
-          code=$(curl -s -o /tmp/answer -w "%{http_code}" -X POST "$FUNCTIONS_URL/monthly-report" -H "x-report-secret: $SECRET")
+          code=$(curl -s -o /tmp/answer -w "%{http_code}" -X POST "$FUNCTIONS_URL/monthly-report?month=$MONTH" -H "x-report-secret: $SECRET")
           echo "HTTP $code: $(cat /tmp/answer)"
           test "$code" = "200"
