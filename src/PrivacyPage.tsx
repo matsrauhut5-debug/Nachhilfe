@@ -12,7 +12,7 @@ export default function PrivacyPage() {
 
       <h2>What we store</h2>
       <ul>
-        <li>Student name, parent name (optional) and the email address used to sign in</li>
+        <li>Student name, an optional username and the email address used to sign in</li>
         <li>Booked and cancelled lessons with date, time, length and price</li>
         <li>Whether a lesson has been paid</li>
       </ul>
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         <li>Database and sign-in: Supabase, servers in the EU (Ireland)</li>
         <li>Emails: sent through Google Gmail</li>
         <li>This website: GitHub Pages (no data is stored there)</li>
-        <li>Mats keeps a weekly backup copy in his email account</li>
+        <li>Once a month Mats gets a payment overview (name, amount, date, paid or not) in his email account</li>
       </ul>
 
       <h2>How long</h2>

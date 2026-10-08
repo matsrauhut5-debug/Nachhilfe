@@ -430,6 +430,6 @@ verify_jwt = false
 [functions.send-notification]
 verify_jwt = false
 
-# Called by the weekly GitHub Action with x-backup-secret
-[functions.weekly-backup]
+# Called by the monthly GitHub Action with x-report-secret
+[functions.monthly-report]
 verify_jwt = false

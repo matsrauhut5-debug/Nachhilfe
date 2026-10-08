@@ -60,8 +60,8 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
 |---|---|---|---|
 | Code + Webseite | **GitHub** (öffentliches Repo) + **GitHub Pages** | Code-Verwaltung, Hosting unter `https://<user>.github.io/<repo>/` | kostenlos |
 | Datenbank, Logins, Server-Funktionen | **Supabase** (Free Plan) | Postgres, Auth, Row Level Security, Edge Functions | kostenlos |
-| E-Mail-Versand | **Gmail** über SMTP mit App-Passwort | Einladungen, Passwort-Reset, Buchungs-/Absage-Mails, Backup-Mail | kostenlos |
-| Automatische Helfer | **GitHub Actions** | Deploy, Keep-alive (gegen Pausieren), wöchentliches Backup | kostenlos |
+| E-Mail-Versand | **Gmail** über SMTP mit App-Passwort | Einladungen, Passwort-Reset, Buchungs-/Absage-Mails, monatlicher Zahlungsbericht | kostenlos |
+| Automatische Helfer | **GitHub Actions** | Deploy, Keep-alive (gegen Pausieren), monatlicher Zahlungsbericht | kostenlos |
 
 **Warum Gmail statt eines E-Mail-Dienstes wie Resend:** Solche Dienste können ohne eigene Domain nur an die eigene Adresse senden. Mats hat bewusst keine eigene Domain. Gmail mit App-Passwort funktioniert ohne Domain.
 
@@ -100,9 +100,9 @@ Das Design soll ruhig bleiben: wenige Farben, gedämpfte Schülerfarben (Palette
     username-login/
     send-notification/
     calendar-feed/
-    weekly-backup/
+    monthly-report/
 /.github/workflows/
-  deploy.yml, keepalive.yml, backup.yml
+  deploy.yml, keepalive.yml, monthly-report.yml
 ```
 
 ---
@@ -164,7 +164,6 @@ profiles (
   role text not null check (role in ('admin','family')) default 'family',
   student_name text,          -- z. B. "Mia Berger"
   username text unique,       -- optional, klein geschrieben, z. B. "mia" (3–30 Zeichen a-z 0-9 . _ -)
-  parent_name text,           -- z. B. "Sandra Berger"
   email text not null,
   color text,                 -- aus der Palette, automatisch vergeben
   price_60 numeric(10,2),
@@ -260,12 +259,12 @@ notifications_outbox (
 - **`invite-family`** (nur Admin, prüft JWT + Rolle): legt Nutzer per `auth.admin.inviteUserByEmail` an (Weiterleitung auf `#/set-password`), erstellt die `profiles`-Zeile mit Namen, Preisen und automatisch vergebener Farbe. Auch „Einladung erneut senden“.
 - **`send-notification`**: wird per **Database Webhook** bei neuem Eintrag in `notifications_outbox` aufgerufen (Webhook mit geheimem Header absichern). Verschickt über Gmail-SMTP je eine E-Mail an die Familie und an Mats, setzt `sent_at` oder `error`. Umgesetzt als Trigger `outbox_notify` (pg_net) mit URL + Secret aus Supabase Vault (`notify_url`, `webhook_secret`). Mats bekommt **bei jeder Änderung** eine Mail (auch bei eigenen Aktionen). Sagt Mats ab, wählt er den Grund (`bookings.cancel_reason`: 'teacher' = er kann nicht, 'family' = Wunsch der Familie, z. B. per WhatsApp); der Text an die Familie richtet sich danach. Kurzfristige Absage (`late`) erzeugt `late_cancelled`-Mails.
 - **`calendar-feed`**: öffentlich erreichbar (JWT-Prüfung aus), aber nur mit korrektem `?token=`. Liefert `text/calendar` (iCalendar) mit allen Terminen mit Status `booked` von −30 bis +180 Tagen. Pro Termin: `UID` = Buchungs-ID, `SUMMARY` = „Nachhilfe: Mia Berger“, `DTSTART/DTEND` in UTC, `DESCRIPTION` mit Dauer, Betrag, Serie ja/nein. Kalenderkopf mit `X-WR-CALNAME:Nachhilfe`, `REFRESH-INTERVAL;VALUE=DURATION:PT15M`, `X-PUBLISHED-TTL:PT15M`. Abgesagte Termine verschwinden beim nächsten Abruf.
-- **`weekly-backup`**: nur mit geheimem Header aufrufbar. Exportiert `profiles`, `bookings`, `availability_*`, `settings` (ohne `ics_token`) als JSON + Buchungen als CSV und schickt sie als Anhang an Mats.
+- **`monthly-report`** (ersetzt das frühere wöchentliche Backup, Wunsch von Mats): nur mit geheimem Header `x-report-secret`. Am 1. des Monats CSV des Vormonats (alle `booked`/`late`-Stunden) im Format seines Google Sheets: `Name, Betrag, Datum, Status`. Kein Voll-Backup; Elternname wird nicht gespeichert.
 
 ### 8.3 Secrets (nie ins Repo)
 
-Supabase Function Secrets: `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `WEBHOOK_SECRET`, `BACKUP_SECRET` (Service-Role-Key ist in Edge Functions automatisch verfügbar).
-GitHub Secrets: `BACKUP_SECRET`, `SUPABASE_FUNCTIONS_URL`. GitHub Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+Supabase Function Secrets: `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `WEBHOOK_SECRET`, `REPORT_SECRET` (Service-Role-Key ist in Edge Functions automatisch verfügbar).
+GitHub Secrets: `REPORT_SECRET`, `SUPABASE_FUNCTIONS_URL`. GitHub Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
 ---
 
@@ -295,7 +294,7 @@ Ursprüngliche Beschreibung:
 
 **Aktuelle Struktur (Phase 7, von Mats freigegeben – hat Vorrang vor der Beschreibung darunter):** kompakte Kopfzeile „Tutoring“ + Menü; vier Reiter **Week · Students · Payments · Settings**.
 - *Week:* Woche/Monat; Zeile „5 lessons · 7 hrs · HK$ 1,860“ mit „Edit hours“ und „+ Lesson“; am Rechner Zeitraster (DE + HK-Spalte), auf schmalen Bildschirmen (≤700 px) Tagesliste mit Terminen und „Free …“-Zeiten; Tipp auf Termin → Details (Paid-Schalter, Cancel, Late cancellation, End series from here, Don't charge); Tipp auf Tag → Block / Reset / Edit hours.
-- *Students:* Tabelle + Bearbeiten-Dialog. *Payments:* Monat, Filter, Summen, Tabelle, „Copy for Google Sheets“, „Download backup“.
+- *Students:* Tabelle + Bearbeiten-Dialog. *Payments:* Monat, Filter, Summen, Tabelle, „Copy for Google Sheets“ (Spalten Name | Betrag | Datum | Status).
 - *Settings:* Usual hours (mit Edit), Free cancellation (12/24/48 h), Apple Calendar (Link, Copy, New link, Anleitung).
 
 Ursprünglich: Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`settings.timezone`), unabhängig vom Gerät.
@@ -323,7 +322,7 @@ Ursprünglich: Vier Tabs wie im Prototyp. Alle Zeiten in Mats' Heimatzeit (`sett
 - Summenkarten: „Fällig und noch offen“ (vergangene + `late`, unbezahlt), „Bezahlt“, „Noch geplant“. Darunter „Offen: Mia HK$ 420 · Jonas HK$ 280“.
 - Tabelle: Datum/Zeit (+ Markierung „geplant“ / „kurzfr. abgesagt“), Schüler, Dauer, Betrag, Status-Knopf Offen ↔ Bezahlt.
 - **„Für Google Sheet kopieren“:** tab-getrennte Zeilen in die Zwischenablage (`Datum | Schüler | Beginn | Dauer (Std.) | Betrag (HKD) | Status`), direkt in Google Sheets einfügbar.
-- Knopf „Alle Daten exportieren“ (JSON/CSV-Download) als manuelles Backup.
+- (Entfernt auf Wunsch von Mats: „Alle Daten exportieren“.)
 
 ---
 
@@ -350,7 +349,7 @@ Versand über Gmail-SMTP (App-Passwort; Voraussetzung: Zwei-Faktor-Anmeldung im 
 | Serie beendet | Übersicht der abgesagten Termine | Info |
 | Einladung | Eigene Vorlage `supabase/templates/invite.html` (englisch) | – |
 | Passwort vergessen | Eigene Vorlage `supabase/templates/recovery.html` (englisch) | – |
-| Wöchentliches Backup | – | Anhänge JSON + CSV |
+| Monatlicher Zahlungsbericht (1. des Monats, Vormonat) | – | CSV `Name, Betrag, Datum, Status` (Datum TT/MM/JJJJ, „Bezahlt“/„Nicht bezahlt“) |
 
 **Supabase Auth muss ebenfalls über Gmail senden:** In Supabase unter Authentication → Emails → SMTP Settings eigenes SMTP eintragen (Gmail). Der eingebaute Supabase-Mailversand ist nur für Tests gedacht und stark begrenzt.
 
@@ -411,10 +410,10 @@ Jede Phase: umsetzen → committen/pushen → Mats testet anhand der Checkliste 
 
 **Phase 11 – Betrieb & Absicherung**
 - `keepalive.yml`: alle 3 Tage eine leichte Anfrage an Supabase (verhindert das Pausieren des Free Plans nach 7 Tagen Inaktivität).
-- `backup.yml`: jeden Sonntag `weekly-backup` aufrufen. **Backups niemals ins Repository committen oder als öffentliches Artefakt ablegen** (Repo ist öffentlich, Daten sind personenbezogen).
+- `monthly-report.yml`: am 1. jedes Monats `monthly-report` aufrufen. **Berichte niemals ins Repository committen oder als öffentliches Artefakt ablegen.**
 - Kurze Datenschutz-Seite (welche Daten, wofür, Kontakt, Löschung auf Anfrage) und Link im Fußbereich. Mats klären lassen, welches Datenschutzrecht für ihn gilt.
 - Fehlerzustände prüfen (kein Internet, Zeit gerade vergeben, Sitzung abgelaufen), Handy-Test auf iPhone Safari.
-- ✅ Actions laufen grün; Backup-Mail kommt an.
+- ✅ Actions laufen grün; Monatsbericht kommt an.
 
 **Phase 12 – Echtbetrieb**
 - Testdaten löschen, echte Familien anlegen und einladen, kurze Anleitung für Familien (3 Sätze + Link) als Textvorlage für Mats.

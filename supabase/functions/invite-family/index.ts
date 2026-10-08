@@ -90,7 +90,6 @@ Deno.serve(async (req) => {
         .update({
           student_name: studentName,
           username,
-          parent_name: String(body.parent_name ?? '').trim() || null,
           price_60: price(body.price_60),
           price_90: price(body.price_90),
           price_120: price(body.price_120),

@@ -8,7 +8,6 @@ type Family = {
   id: string
   student_name: string | null
   username: string | null
-  parent_name: string | null
   email: string
   color: string | null
   price_60: number | null
@@ -64,7 +63,7 @@ export default function StudentsTab() {
     const [fam, bk, st] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, student_name, username, parent_name, email, color, price_60, price_90, price_120, timezone, active')
+        .select('id, student_name, username, email, color, price_60, price_90, price_120, timezone, active')
         .eq('role', 'family')
         .order('student_name'),
       supabase.from('bookings').select('family_id, ends_at, duration_min, status, paid, price'),
@@ -170,7 +169,6 @@ function EditStudentDialog(props: { fam: Family; stats: Stats; signedIn: boolean
   const [form, setForm] = useState({
     student_name: fam.student_name ?? '',
     username: fam.username ?? '',
-    parent_name: fam.parent_name ?? '',
     timezone: fam.timezone,
     color: fam.color ?? PALETTE[0],
     price_60: fam.price_60?.toString() ?? '',
@@ -195,7 +193,6 @@ function EditStudentDialog(props: { fam: Family; stats: Stats; signedIn: boolean
       .update({
         student_name: form.student_name.trim(),
         username: username || null,
-        parent_name: form.parent_name.trim() || null,
         timezone: form.timezone,
         color: form.color,
         price_60: parsePrice(form.price_60),
@@ -269,8 +266,8 @@ function EditStudentDialog(props: { fam: Family; stats: Stats; signedIn: boolean
         </div>
         <div className="two">
           <label className="field">
-            Parent
-            <input type="text" placeholder="optional" value={form.parent_name} onChange={set('parent_name')} />
+            Email (login)
+            <input type="email" value={fam.email} disabled />
           </label>
           <label className="field">
             Time zone
@@ -280,10 +277,6 @@ function EditStudentDialog(props: { fam: Family; stats: Stats; signedIn: boolean
             </select>
           </label>
         </div>
-        <label className="field">
-          Email (login)
-          <input type="email" value={fam.email} disabled />
-        </label>
         <div className="prices" style={{ margin: 0 }}>
           {DURATIONS.map((d) => (
             <label key={d}>
@@ -331,7 +324,6 @@ function AddStudentDialog({ onClose, onDone }: { onClose: () => void; onDone: ()
   const [form, setForm] = useState({
     student_name: '',
     username: '',
-    parent_name: '',
     email: '',
     price_60: '',
     price_90: '',
@@ -405,18 +397,12 @@ function AddStudentDialog({ onClose, onDone }: { onClose: () => void; onDone: ()
           <input type="email" required value={form.email} onChange={set('email')} />
           <span>The family gets an invitation with the username and sets its own password.</span>
         </label>
-        <div className="two">
-          <label className="field">
-            Parent
-            <input type="text" placeholder="optional" value={form.parent_name} onChange={set('parent_name')} />
-          </label>
-          <label className="field">
-            Time zone
-            <select className="inp" value={form.timezone} onChange={set('timezone')}>
-              {TIMEZONES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          </label>
-        </div>
+        <label className="field">
+          Time zone
+          <select className="inp" value={form.timezone} onChange={set('timezone')}>
+            {TIMEZONES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          </select>
+        </label>
         <div className="prices" style={{ margin: 0 }}>
           {DURATIONS.map((d) => (
             <label key={d}>

@@ -8,7 +8,6 @@ export type Profile = {
   id: string
   role: Role
   student_name: string | null
-  parent_name: string | null
   email: string
   active: boolean
 }
@@ -53,7 +52,7 @@ async function consumeEmailLink(): Promise<{ used: boolean; error: string | null
 async function loadProfile(userId: string): Promise<Profile | null> {
   const { data } = await supabase
     .from('profiles')
-    .select('id, role, student_name, parent_name, email, active')
+    .select('id, role, student_name, email, active')
     .eq('id', userId)
     .maybeSingle()
   return data as Profile | null

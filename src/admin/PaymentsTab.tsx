@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 import { PALETTE, fmtDuration, money } from '../lib/format'
 import { MON_LONG, fmtDayShort, fromMin, zonedParts, zonedToUtc } from '../lib/time'
 import { useToast } from '../lib/ui'
-import { copyText, download } from '../lib/clipboard'
+import { copyText } from '../lib/clipboard'
 import { BOOKING_COLS, place, useFamilies, type Booking, type Placed } from './data'
 import type { Settings } from './availability'
 
@@ -68,37 +68,14 @@ export default function PaymentsTab({ settings }: { settings: Settings }) {
   const name = (id: string) => families[id]?.student_name ?? 'Former student'
 
   async function copyForSheets() {
-    // Tab-separated, pastes straight into Google Sheets columns
-    const lines = [['Date', 'Student', 'Start', 'Duration (hrs)', 'Amount (HKD)', 'Status'].join('\t')]
+    // Same columns as the Google Sheet and the monthly email: Name | Betrag | Datum | Status
+    const amount = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2))
+    const lines = [['Name', 'Betrag', 'Datum', 'Status'].join('\t')]
     for (const b of shown) {
-      lines.push(
-        [b.iso, name(b.family_id), fromMin(b.start), String(b.duration_min / 60), String(Number(b.price)), b.paid ? 'Paid' : b.status === 'late' ? 'Late cancellation' : isDue(b) ? 'Open' : 'Planned'].join('\t'),
-      )
+      const [yy, mm, dd] = b.iso.split('-')
+      lines.push([name(b.family_id), amount(Number(b.price)), `${dd}/${mm}/${yy}`, b.paid ? 'Bezahlt' : 'Nicht bezahlt'].join('\t'))
     }
     toast((await copyText(lines.join('\n'))) ? `${shown.length} rows copied – paste them into Google Sheets` : 'Could not copy.')
-  }
-
-  async function exportAll() {
-    const [profiles, bookings, template, overrides, s] = await Promise.all([
-      supabase.from('profiles').select('*'),
-      supabase.from('bookings').select('*').order('starts_at'),
-      supabase.from('availability_template').select('*'),
-      supabase.from('availability_override').select('*'),
-      supabase.from('settings').select('cancel_hours, timezone, second_timezone, admin_email'),
-    ])
-    if (profiles.error || bookings.error) return toast('Export failed. Please try again.')
-    const stamp = new Date().toISOString().slice(0, 10)
-    download(
-      `tutoring-backup-${stamp}.json`,
-      JSON.stringify({ exported_at: new Date().toISOString(), profiles: profiles.data, bookings: bookings.data, availability_template: template.data, availability_override: overrides.data, settings: s.data }, null, 2),
-      'application/json',
-    )
-    const cols = ['id', 'family_id', 'starts_at', 'ends_at', 'duration_min', 'series_id', 'status', 'price', 'paid', 'created_at', 'cancelled_at']
-    const csv = [cols.join(',')]
-      .concat((bookings.data as Record<string, unknown>[]).map((r) => cols.map((c) => JSON.stringify(r[c] ?? '')).join(',')))
-      .join('\n')
-    download(`tutoring-bookings-${stamp}.csv`, csv, 'text/csv')
-    toast('Backup downloaded')
   }
 
   const [y, m] = month.split('-').map(Number)
@@ -171,11 +148,8 @@ export default function PaymentsTab({ settings }: { settings: Settings }) {
 
       <div className="srow" style={{ marginTop: 14 }}>
         <button className="btn sm" onClick={copyForSheets} disabled={!shown.length}>Copy for Google Sheets</button>
-        <button className="btn sm ghost" onClick={exportAll}>Download backup</button>
       </div>
-      <p className="fine" style={{ marginTop: 8 }}>
-        “Download backup” saves all data (JSON + CSV) on this device.
-      </p>
+      <p className="fine" style={{ marginTop: 8 }}>On the 1st of each month you also get last month as a CSV file by email.</p>
     </>
   )
 }
