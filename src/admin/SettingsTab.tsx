@@ -156,13 +156,16 @@ function AppleCalendar() {
             <a className="btn sm" href={link}>Open in Calendar</a>
             <button className="btn sm ghost" onClick={() => setConfirm(true)}>New link</button>
           </div>
-          <details className="howto">
+          <details className="howto" open>
             <summary>How to add it</summary>
             <p>
-              <b>iPhone:</b> Settings → Apps → Calendar → Calendar Accounts → Add Account → Other → Add Subscribed Calendar → paste the link.
+              <b>Easiest, on your iPhone or Mac:</b> open this page there and tap <b>Open in Calendar</b>. The Calendar app asks
+              “Subscribe to this calendar?” → tap <b>Subscribe</b> → <b>Add</b>.
             </p>
             <p>
-              <b>Mac:</b> Calendar → File → New Calendar Subscription → paste the link, set “Auto-refresh” to every 5 minutes.
+              <b>If that doesn't open:</b> tap <b>Copy link</b>, then on iPhone: Settings → Apps → Calendar → Calendar Accounts → Add Account → Other →
+              Add Subscribed Calendar → paste → Next → Save. On Mac: Calendar → File → New Calendar Subscription → paste → set Auto-refresh to
+              “Every 5 minutes”.
             </p>
             <p>Apple refreshes subscribed calendars with a delay. For instant news you get the emails.</p>
           </details>

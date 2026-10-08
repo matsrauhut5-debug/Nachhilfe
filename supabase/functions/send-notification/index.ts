@@ -16,6 +16,7 @@ type Payload = {
   price?: number
   kept?: number
   by?: 'family' | 'admin'
+  reason?: 'teacher' | 'family'
 }
 
 const TZ_NAMES: Record<string, string> = { 'Europe/Berlin': 'German', 'Asia/Hong_Kong': 'Hong Kong' }
@@ -56,8 +57,13 @@ function compose(kind: string, p: Payload, fam: { email: string; student_name: s
   const dur = p.duration_min ?? 60
   const fTime = `(${tzName(ftz)} time)`
   const aTime = `(${tzName(adminTz)} time)`
-  const mails: Mail[] = []
   const byMats = p.by === 'admin'
+  // Why Mats cancelled: he can't make it, or the family asked (e.g. via WhatsApp)
+  const matsCant = byMats && p.reason === 'teacher'
+  const who = byMats ? 'You' : name
+  const reasonNote = byMats ? (matsCant ? ' (you couldn\'t make it)' : ' (family\'s request)') : ''
+  const mails: Mail[] = []
+  const toMats = (subject: string, lines: string[]) => mails.push({ to: '', subject, html: html(lines, 'Open overview') })
 
   if (kind === 'booked' || kind === 'series_booked') {
     const one = starts.length === 1
@@ -71,46 +77,46 @@ function compose(kind: string, p: Payload, fam: { email: string; student_name: s
       subject: one ? `Lesson booked: ${when(starts[0], dur, ftz)}` : `${starts.length} lessons booked for ${first}`,
       html: html(famLines, 'Open booking page'),
     })
-    if (!byMats) {
-      mails.push({
-        to: '',
-        subject: one ? `New booking: ${name}, ${when(starts[0], dur, adminTz)}` : `New series: ${name}, ${starts.length} lessons`,
-        html: html(
-          one
-            ? [`<b>${name}</b> booked ${when(starts[0], dur, adminTz)} ${aTime}.`, `${hrs(dur)} · ${money(p.price ?? 0)}`]
-            : [`<b>${name}</b> booked ${starts.length} weekly lessons ${aTime}:`, list(starts.map((s) => when(s, dur, adminTz))), `${hrs(dur)} · ${money(p.price ?? 0)} each`],
-          'Open overview',
-        ),
-      })
-    }
+    toMats(
+      one ? `New booking: ${name}, ${when(starts[0], dur, adminTz)}` : `New series: ${name}, ${starts.length} lessons`,
+      one
+        ? [`${byMats ? `You booked a lesson for <b>${name}</b>` : `<b>${name}</b> booked a lesson`}: ${when(starts[0], dur, adminTz)} ${aTime}.`, `${hrs(dur)} · ${money(p.price ?? 0)}`]
+        : [`${byMats ? `You booked ${starts.length} weekly lessons for <b>${name}</b>` : `<b>${name}</b> booked ${starts.length} weekly lessons`} ${aTime}:`, list(starts.map((s) => when(s, dur, adminTz))), `${hrs(dur)} · ${money(p.price ?? 0)} each`],
+    )
   } else if (kind === 'cancelled') {
     const s = starts[0]
-    mails.push({
-      to: fam.email,
-      subject: `Lesson cancelled: ${when(s, dur, ftz)}`,
-      html: html([`Hello,`, `${byMats ? 'Mats cancelled' : 'You cancelled'} ${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime}.`, 'Nothing is charged for this lesson.'], 'Open booking page'),
-    })
-    if (!byMats) {
-      mails.push({
-        to: '',
-        subject: `Cancelled: ${name}, ${when(s, dur, adminTz)}`,
-        html: html([`<b>${name}</b> cancelled the lesson on ${when(s, dur, adminTz)} ${aTime}. The time is free again.`], 'Open overview'),
-      })
-    }
+    const famText = !byMats
+      ? `You cancelled ${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime}.`
+      : matsCant
+        ? `Unfortunately Mats has to cancel ${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime}. Sorry for the change.`
+        : `As requested, Mats cancelled ${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime}.`
+    mails.push({ to: fam.email, subject: `Lesson cancelled: ${when(s, dur, ftz)}`, html: html([`Hello,`, famText, 'Nothing is charged for this lesson.'], 'Open booking page') })
+    toMats(`Cancelled: ${name}, ${when(s, dur, adminTz)}`, [
+      `${who} cancelled ${byMats ? `<b>${name}</b>'s lesson` : 'the lesson'} on ${when(s, dur, adminTz)} ${aTime}${reasonNote}. The time is free again.`,
+    ])
   } else if (kind === 'series_ended') {
     const kept = p.kept ? `<br>${p.kept} lesson(s) were too soon to cancel and stay booked.` : ''
+    const famText = !byMats ? `You ended ${first}'s weekly lessons.` : matsCant ? `Unfortunately Mats has to end ${first}'s weekly lessons.` : `As requested, Mats ended ${first}'s weekly lessons.`
     mails.push({
       to: fam.email,
       subject: `Series ended: ${starts.length} lessons cancelled`,
-      html: html([`Hello,`, `${byMats ? 'Mats ended' : 'You ended'} ${first}'s weekly lessons. These lessons are cancelled ${fTime}:`, list(starts.map((s) => dayOnly(s, ftz))) + kept], 'Open booking page'),
+      html: html([`Hello,`, `${famText} These lessons are cancelled ${fTime}:`, list(starts.map((s) => dayOnly(s, ftz))) + kept], 'Open booking page'),
     })
-    if (!byMats) {
-      mails.push({
-        to: '',
-        subject: `Series ended: ${name}, ${starts.length} lessons cancelled`,
-        html: html([`<b>${name}</b> ended the weekly series. Cancelled ${aTime}:`, list(starts.map((s) => dayOnly(s, adminTz))) + kept], 'Open overview'),
-      })
-    }
+    toMats(`Series ended: ${name}, ${starts.length} lessons cancelled`, [
+      `${who} ended ${byMats ? `<b>${name}</b>'s` : 'the'} weekly series${reasonNote}. Cancelled ${aTime}:`,
+      list(starts.map((s) => dayOnly(s, adminTz))) + kept,
+    ])
+  } else if (kind === 'late_cancelled') {
+    const s = starts[0]
+    mails.push({
+      to: fam.email,
+      subject: `Lesson cancelled at short notice: ${when(s, dur, ftz)}`,
+      html: html(
+        [`Hello,`, `${first}'s lesson on <b>${when(s, dur, ftz)}</b> ${fTime} is cancelled.`, `Because it was cancelled less than ${cancelHours} hours before, it is charged as usual (${money(p.price ?? 0)}).`],
+        'Open booking page',
+      ),
+    })
+    toMats(`Late cancellation: ${name}, ${when(s, dur, adminTz)}`, [`You marked <b>${name}</b>'s lesson on ${when(s, dur, adminTz)} ${aTime} as a late cancellation. ${money(p.price ?? 0)} stays in Payments.`])
   }
   return mails
 }

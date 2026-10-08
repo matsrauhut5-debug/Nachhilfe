@@ -47,33 +47,39 @@ export function LessonDialog(props: {
     }
   }
 
-  const confirmTexts = {
-    cancel: ['Cancel this lesson?', 'The lesson is removed and not charged. The family gets an email.', 'Cancel lesson'],
-    late: ['Late cancellation?', 'The lesson is cancelled but still charged. It stays in Payments.', 'Charge as late cancellation'],
-    series: ['End series from here?', 'This lesson and all following lessons of the series are cancelled.', 'End series'],
+  if (confirm === 'late') {
+    return (
+      <Modal onClose={() => setConfirm(null)}>
+        <h3>Late cancellation?</h3>
+        <p className="muted" style={{ margin: '0 0 18px' }}>The lesson is cancelled but still charged and stays in Payments. The family gets an email.</p>
+        <div className="actions">
+          <button className="btn ghost" onClick={() => setConfirm(null)}>Back</button>
+          <button className="btn danger" disabled={busy} onClick={() => run('mark_late_cancel', { p_id: l.id }, 'Marked as late cancellation')}>
+            Charge as late cancellation
+          </button>
+        </div>
+      </Modal>
+    )
   }
 
   if (confirm) {
-    const [title, text, ok] = confirmTexts[confirm]
+    // Cancel one lesson or the series from here – and say why (shown in the family's email)
+    const series = confirm === 'series'
+    const go = (reason: 'teacher' | 'family') =>
+      series
+        ? run('end_series', { p_series_id: l.series_id, p_from: l.starts_at, p_reason: reason }, 'Series ended')
+        : run('cancel_booking', { p_id: l.id, p_reason: reason }, 'Lesson cancelled')
     return (
       <Modal onClose={() => setConfirm(null)}>
-        <h3>{title}</h3>
-        <p className="muted" style={{ margin: '0 0 18px' }}>{text}</p>
-        <div className="actions">
+        <h3>{series ? 'End series from here?' : 'Cancel this lesson?'}</h3>
+        <p className="muted" style={{ margin: '0 0 6px' }}>
+          {series ? 'This lesson and all following lessons of the series are cancelled.' : 'The lesson is removed and not charged.'}
+        </p>
+        <p className="fieldlbl" style={{ margin: '12px 0 8px' }}>Why?</p>
+        <div className="actions stack">
+          <button className="btn danger" disabled={busy} onClick={() => go('family')}>The family asked for it</button>
+          <button className="btn danger" disabled={busy} onClick={() => go('teacher')}>I can't make it</button>
           <button className="btn ghost" onClick={() => setConfirm(null)}>Back</button>
-          <button
-            className="btn danger"
-            disabled={busy}
-            onClick={() =>
-              confirm === 'cancel'
-                ? run('cancel_booking', { p_id: l.id }, 'Lesson cancelled')
-                : confirm === 'late'
-                  ? run('mark_late_cancel', { p_id: l.id }, 'Marked as late cancellation')
-                  : run('end_series', { p_series_id: l.series_id, p_from: l.starts_at }, 'Series ended')
-            }
-          >
-            {ok}
-          </button>
         </div>
       </Modal>
     )
