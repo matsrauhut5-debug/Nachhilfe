@@ -8,6 +8,11 @@
        style="background:#0E8A5F;color:#fff;text-decoration:none;padding:12px 20px;border-radius:11px;font-weight:600;display:inline-block">Set password</a>
   </p>
   {{ if .Data.username }}<p>Your username: <b>{{ .Data.username }}</b></p>
-  <p style="color:#6B7180;font-size:14px">After that, you sign in with your username (or this email address) and your password. This link is valid for 24 hours.</p>
-  {{ else }}<p style="color:#6B7180;font-size:14px">After that, you always sign in with this email address and your password. This link is valid for 24 hours.</p>{{ end }}
+  <p style="color:#6B7180;font-size:14px">After that, you sign in with your username (or this email address) and your password. The “Set password” button works for 24 hours.</p>
+  {{ else }}<p style="color:#6B7180;font-size:14px">After that, you always sign in with this email address and your password. The “Set password” button works for 24 hours.</p>{{ end }}
+  <div style="margin:22px 0 0;padding:14px 16px;background:#F1F4F0;border-radius:12px">
+    <p style="margin:0 0 6px;font-weight:600">Save this link for the future:</p>
+    <p style="margin:0 0 8px"><a href="{{ .SiteURL }}" style="color:#0A6444;font-weight:600;word-break:break-all">{{ .SiteURL }}</a></p>
+    <p style="margin:0;color:#6B7180;font-size:14px">Use it any time to book lessons, see your upcoming lessons and cancel. Tip: bookmark it or add it to your phone's home screen.</p>
+  </div>
 </div>
